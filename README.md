@@ -10,10 +10,20 @@ Built for the **Nebius × NVIDIA Global AI Hackathon** (track: Coding and Agenti
 
 | | |
 |---|---|
-| 🌐 Live demo | `TODO: https://your-fixsi.vercel.app` |
-| 🎬 Video | `TODO: link` |
-| 🖼️ Screenshots | `TODO: docs/screenshot-desktop.png`, `docs/screenshot-phone.png` |
-| 🎞️ GIF | `TODO: docs/fixsi-bug4.gif` (bug #4: a hypothesis is rejected, then the real one is confirmed) |
+| 🌐 Live demo | **TODO (author):** paste the Vercel URL. Is it the production URL (not a preview)? Does the header badge show the mode you expect? Did you run one replay to warm the backend? |
+| 🎬 Video | **TODO (author):** paste the video link. Is it public or unlisted (not private)? Is it 3 minutes or less? Does it show bug #4's rejected → confirmed hypotheses? |
+| 🖼️ Screenshots | **TODO (author):** after re-recording the replays live, run `cd frontend && npm run capture` and commit `docs/`, then replace this cell with `![Fixsi run page](docs/screenshot-desktop.png)` and `![Fixsi on a phone](docs/screenshot-phone.png)`. |
+| 🎞️ Clip | **TODO (author):** `npm run capture` also writes `docs/fixsi-bug4.webm` (bug #4: a hypothesis is rejected, then the real one is confirmed). GitHub only plays videos uploaded through its editor, so drag the file into this README on github.com, or convert it to a GIF. |
+
+## Judging quick path
+
+1. Open the live demo.
+2. On the home page, click **Investigate** on incident **#4**, *InventoryError when cancelling an order after 'Buy again'*.
+3. Watch the Hypothesis board. **H1** (`Inventory.release()` mis-tracks stock) gets a reproduction test that *passes*, so it is **rejected**. **H2** (`Cart.restore()` aliases line items) fails exactly as predicted, so it is **confirmed**. Only then is the code edited, and Verify turns green.
+4. Open the **Report** tab to read the postmortem.
+5. Click **Download .patch** to get the fix as a git patch.
+
+The four demo incidents work in Replay mode without credits. **Pasted errors and GitHub issues need live mode** (a `NEBIUS_API_KEY` on the backend).
 
 ---
 
@@ -218,20 +228,26 @@ The backend suite covers router parsing, retries and fallback against a fake cli
 ## Feedback on Nebius Token Factory, AI Cloud and NVIDIA models
 
 ### Nebius Token Factory
-TODO: onboarding, API compatibility, latency, rate limits, pricing/credits, docs.
+**TODO (author):** How long did it take to go from sign-up to a first successful call? Did the OpenAI-compatible API work as-is, or did anything need special handling? How were latency and rate limits during the live runs?
 
 ### Nebius AI Cloud (Serverless Jobs / Endpoints)
-TODO: setup experience, CLI, startup times, logs, anything that surprised you.
+**TODO (author):** Did you run the sandbox on Serverless Jobs, and how was the CLI and setup? How long did a job take to start? Was anything in the logs or docs missing or surprising?
 
 ### NVIDIA Nemotron models (Nano / Super / Ultra)
-TODO: quality per tier on these tasks, JSON reliability, reasoning output, where routing paid off.
+**TODO (author):** Where did each tier do well or struggle on these tasks? How reliable was the JSON output, and what did the reasoning text look like? Did routing cheap steps to Nano and hard ones to Ultra pay off in cost or quality?
 
 ### What we'd love to see
-TODO
+**TODO (author):** Which one or two changes would have saved you the most time? Was there a missing feature, model or tool you wanted? What would make you use Nebius again after the hackathon?
 
 ## What was built during the hackathon
 
-TODO: describe what was built during the event (all of this repository unless noted).
+From the git history and code:
+
+- The repository was created on 2026-10-17; that first commit contains only a two-line `README.md`.
+- Everything else was added afterwards: the Express backend (orchestrator, model router, sandboxes, patcher, SSE, storage, GitHub and webhook integrations), the Vite + React frontend, the `demo-shop` victim app with its four planted bugs and generated git history, the replay recordings, the test suites, and the Docker/Render/Vercel deployment files.
+- The only third-party code is the npm dependencies listed in `backend/package.json` and `frontend/package.json`.
+
+**TODO (author):** Which parts did you design first, and what changed along the way? Was anything reused from earlier work of yours (if so, name it)? What would you build next?
 
 ## License
 

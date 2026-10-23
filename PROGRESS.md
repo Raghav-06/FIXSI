@@ -37,7 +37,7 @@ docker compose up --build                         # nginx UI on :3000, API on :8
 | 5 | Re-record replays with live models (needs key) | BLOCKED: no `NEBIUS_API_KEY` |
 | 6 | Deployment readiness: SPA rewrites, Render blueprint, Docker check, README deploy steps | DONE, except the Docker check (Docker is not installed on the dev machine; `docker compose up` still unverified) |
 | 7 | README screenshots and GIF | PARTIAL: `frontend/scripts/capture-screenshots.mjs` (`npm run capture`) works and makes all 4 files (clip is `.webm`, 4.1 MB; no ffmpeg for GIF). Images not committed because they would show "Replay (scripted)"; rerun after Task 5 |
-| 8 | README finishing touches | TODO |
+| 8 | README finishing touches | DONE |
 | 9 | Final check | TODO |
 
 Deadline: Devpost submission closes **Oct 30, 2026, 10:30 PM IST**.
