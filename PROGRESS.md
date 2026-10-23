@@ -31,7 +31,7 @@ docker compose up --build                         # nginx UI on :3000, API on :8
 | # | Task | Status |
 |---|---|---|
 | 1 | Rewrite this file for the JS stack | DONE |
-| 2 | Hardening: placeholder webhook secret, LICENSE name, phone Report header | TODO |
+| 2 | Hardening: placeholder webhook secret, LICENSE name, phone Report header | DONE |
 | 3 | Verify Nemotron model IDs (needs key) | TODO |
 | 4 | Live end-to-end runs of all 4 bugs + one pasted error (needs key) | TODO |
 | 5 | Re-record replays with live models (needs key) | TODO |

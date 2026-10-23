@@ -1,7 +1,8 @@
 import { Check, Copy, WrapText } from "lucide-react";
 import { useState } from "react";
 
-export function CopyButton({ text, label = "Copy" }) {
+/** Icon-only below `sm` unless `showLabel` is set. */
+export function CopyButton({ text, label = "Copy", showLabel = false }) {
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -19,7 +20,7 @@ export function CopyButton({ text, label = "Copy" }) {
       aria-label={copied ? "Copied" : label}
     >
       {copied ? <Check size={14} aria-hidden /> : <Copy size={14} aria-hidden />}
-      <span className="hidden sm:inline">{copied ? "Copied" : label}</span>
+      <span className={showLabel ? "" : "hidden sm:inline"}>{copied ? "Copied" : label}</span>
     </button>
   );
 }
