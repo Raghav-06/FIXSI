@@ -124,7 +124,7 @@ export function createApp({ settings = getSettings(), llmClient = null, sandbox 
 
   /** Shared by POST /api/webhooks/error and the internal 'Break it' trigger. Returns the JSON body. */
   const handleWebhook = (rawBody, signature, req) => {
-    if (!settings.webhookSecret) throw new HttpError(503, "Webhooks are disabled (WEBHOOK_SECRET is not set).");
+    if (!settings.webhooksEnabled) throw new HttpError(503, "Webhooks are disabled (WEBHOOK_SECRET is not set).");
     if (rawBody.length > MAX_WEBHOOK_BYTES) throw new HttpError(413, "Payload too large.");
     if (!verifySignature(settings.webhookSecret, rawBody, signature)) throw new HttpError(401, "Invalid signature.");
     let payload;
@@ -173,7 +173,7 @@ export function createApp({ settings = getSettings(), llmClient = null, sandbox 
         effective: settings.sandboxMode === "nebius_jobs" && jobsReason ? "local (jobs fallback)" : settings.sandboxMode,
         note: jobsReason,
       },
-      webhooks: Boolean(settings.webhookSecret),
+      webhooks: settings.webhooksEnabled,
       replays: Object.keys(recordings).sort(),
       limits: {
         runs_per_hour: settings.rateLimitRunsPerHour, max_concurrent_runs: settings.maxConcurrentRuns,
@@ -309,7 +309,7 @@ export function createApp({ settings = getSettings(), llmClient = null, sandbox 
   app.post("/api/demo-shop/break/:bugId", async (req, res) => {
     const data = demoIncident(incidentsDir, req.params.bugId);
     if (!data) throw new HttpError(404, "Unknown bug.");
-    if (!settings.webhookSecret) throw new HttpError(503, "Set WEBHOOK_SECRET to enable the webhook auto-trigger demo.");
+    if (!settings.webhooksEnabled) throw new HttpError(503, "Set WEBHOOK_SECRET to enable the webhook auto-trigger demo.");
     if (!settings.replayActive) {
       checkLiveCapacity(req);
       limiter.hit(clientIp(req));

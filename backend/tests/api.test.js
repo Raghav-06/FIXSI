@@ -7,7 +7,7 @@ import { SCRIPTS } from "../src/replay/scripted.js";
 import { RateLimiter, sign, verifySignature } from "../src/security.js";
 import { settingsFor, tempDir } from "./helpers.js";
 
-const SECRET = "test-webhook-secret";
+const SECRET = "test-webhook-secret-0123456789abcdef";
 const servers = [];
 
 after(async () => {
@@ -152,6 +152,20 @@ test("Break it triggers the real bug and a signed webhook", async () => {
   assert.equal(run.source, "webhook");
   assert.match(run.incident.stack_trace, /at OrderService\.checkout/);
   assert.match(run.incident.stack_trace, /orders\.js/);
+});
+
+test("placeholder or short webhook secret disables webhooks", async () => {
+  for (const webhookSecret of ["change-me-to-a-long-random-string", "too-short"]) {
+    const c = await start({ webhookSecret });
+    assert.equal((await c.get("/api/health")).data.webhooks, false);
+    const body = JSON.stringify({ error: "TypeError: x", incident_id: "bug-1-missing-address" });
+    const r = await c.post("/api/webhooks/error", {
+      body, headers: { "Content-Type": "application/json", "X-Fixsi-Signature": sign(webhookSecret, Buffer.from(body)) },
+    });
+    assert.equal(r.status, 503);
+    assert.equal((await c.post("/api/demo-shop/break/bug-1-missing-address")).status, 503);
+  }
+  assert.equal((await (await start()).get("/api/health")).data.webhooks, true);
 });
 
 test("verifySignature helper", () => {

@@ -4,6 +4,7 @@ import { VERSION, createApp } from "./app.js";
 import { getSettings } from "./config.js";
 
 const settings = getSettings();
+if (settings.webhookSecretWarning) console.warn(`[fixsi] warning: ${settings.webhookSecretWarning}`);
 const app = createApp({ settings });
 const port = Number(process.env.PORT ?? 8000);
 // No HOST = all interfaces, IPv4 and IPv6 (so "localhost" works whether it resolves to 127.0.0.1 or ::1).

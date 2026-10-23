@@ -54,6 +54,10 @@ const DEFAULTS = {
   maxInputBytes: 50_000,
 };
 
+/** The value shipped in old .env.example files. Anyone could sign webhooks with it, so it counts as "not set". */
+export const PLACEHOLDER_WEBHOOK_SECRET = "change-me-to-a-long-random-string";
+export const MIN_WEBHOOK_SECRET_LENGTH = 16;
+
 const CLAMP = { maxHypotheses: [2, 8], maxFixAttempts: [1, 10] };
 
 /** camelCase setting name -> SCREAMING_SNAKE env var name. */
@@ -103,6 +107,22 @@ export class Settings {
 
   get llmConfigured() {
     return Boolean(this.nebiusApiKey.trim());
+  }
+
+  /** Webhooks and "Break it" need a real secret: not the placeholder and at least 16 characters. */
+  get webhooksEnabled() {
+    const s = this.webhookSecret.trim();
+    return s.length >= MIN_WEBHOOK_SECRET_LENGTH && s !== PLACEHOLDER_WEBHOOK_SECRET;
+  }
+
+  /** One-line startup warning when WEBHOOK_SECRET is set but unusable, else null. */
+  get webhookSecretWarning() {
+    const s = this.webhookSecret.trim();
+    if (!s || this.webhooksEnabled) return null;
+    const why = s === PLACEHOLDER_WEBHOOK_SECRET
+      ? "is the .env.example placeholder"
+      : `is shorter than ${MIN_WEBHOOK_SECRET_LENGTH} characters`;
+    return `WEBHOOK_SECRET ${why}; webhooks and "Break it" are disabled. Generate one with: openssl rand -hex 32`;
   }
 
   get githubConfigured() {
