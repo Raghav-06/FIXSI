@@ -1,0 +1,11 @@
+{
+  "id": "bug-4-misleading-inventory",
+  "number": 4,
+  "kind": "The misleading one",
+  "title": "InventoryError when cancelling an order after 'Buy again'",
+  "severity": "high",
+  "report": "Customer service can't cancel some orders: the admin panel throws an inventory error. It seems to affect customers who used 'Buy again' on that order and then changed quantities in their new cart. The stack trace points into the inventory module, so we suspect the reservation bookkeeping.",
+  "logs": "2026-10-16T19:20:14.020Z INFO  shop.orders order placed id=ord_1000 user=u_1 items=2 total=USD 31.97\n2026-10-16T19:24:51.660Z INFO  shop.web    POST /orders/ord_1000/buy-again user=u_1\n2026-10-16T19:25:03.118Z INFO  shop.web    POST /cart/add sku=MUG-01 qty=3 user=u_1\n2026-10-16T19:31:40.002Z INFO  shop.admin  cancel requested order=ord_1000 agent=cs_14\n2026-10-16T19:31:40.004Z ERROR shop.admin  unhandled exception during cancel order=ord_1000\n2026-10-16T19:31:40.004Z ERROR shop.admin  InventoryError: cannot release 5 units of MUG-01: only 2 reserved",
+  "stack_trace": "InventoryError: cannot release 5 units of MUG-01: only 2 reserved\n    at Inventory.release (/srv/shop/shop/inventory.js:55:13)\n    at OrderService.cancel (/srv/shop/shop/orders.js:101:23)\n    at cancelOrder (/srv/shop/admin/orders.js:41:12)",
+  "trigger": "import { Cart } from \"./shop/cart.js\";\nimport { defaultDiscounts } from \"./shop/discounts.js\";\nimport { Inventory } from \"./shop/inventory.js\";\nimport { OrderService } from \"./shop/orders.js\";\nimport { defaultCatalog } from \"./shop/products.js\";\nimport { Address, User } from \"./shop/users.js\";\n\nconst catalog = defaultCatalog();\nconst orders = new OrderService(new Inventory({ \"MUG-01\": 50 }), defaultDiscounts());\nconst user = new User({ id: \"u_1\", email: \"ada@example.com\", name: \"Ada\" });\nuser.saveAddress(\"home\", new Address(\"1 Main St\", \"Springfield\", \"62701\", \"US\"));\nconst cart = new Cart(catalog);\ncart.add(\"MUG-01\", 2);\nconst order = orders.checkout(cart, user);\nconst again = orders.buyAgain(order.id, new Cart(catalog));\nagain.add(\"MUG-01\", 3);\norders.cancel(order.id);\n"
+}

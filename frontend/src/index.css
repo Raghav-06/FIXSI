@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 248 249 251;
+  --surface: 255 255 255;
+  --raised: 241 243 247;
+  --line: 222 226 233;
+  --fg: 17 24 39;
+  --muted: 92 102 120;
+  --accent: 79 70 229;
+  --pass: 22 163 74;
+  --fail: 220 38 38;
+  --warn: 217 119 6;
+  --nano: 14 165 233;
+  --super: 124 58 237;
+  --ultra: 219 39 119;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: 11 13 18;
+  --surface: 19 22 30;
+  --raised: 27 31 42;
+  --line: 44 50 65;
+  --fg: 229 233 240;
+  --muted: 148 158 178;
+  --accent: 129 140 248;
+  --pass: 74 222 128;
+  --fail: 248 113 113;
+  --warn: 251 191 36;
+  --nano: 2 132 199;
+  --super: 139 92 246;
+  --ultra: 236 72 153;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { @apply bg-bg text-fg antialiased; overflow-x: hidden; }
+
+/* iOS: inputs >= 16px so the page doesn't zoom on focus */
+input, textarea, select { font-size: 16px; }
+
+:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 2px; border-radius: 6px; }
+
+@layer components {
+.panel { @apply rounded-xl border border-line bg-surface min-w-0; }
+.panel-title { @apply flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted; }
+.btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
+.btn-primary { @apply btn bg-accent text-white hover:bg-accent/90; }
+.btn-ghost { @apply btn border border-line bg-surface hover:bg-raised; }
+.chip { @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium; }
+
+.code-scroll { @apply overflow-x-auto overscroll-x-contain; -webkit-overflow-scrolling: touch; }
+
+/* rendered markdown */
+.md { @apply text-sm leading-relaxed; }
+.md h1 { @apply mb-3 text-lg font-semibold; }
+.md h2 { @apply mb-2 mt-5 text-base font-semibold; }
+.md p { @apply my-2; }
+.md ul { @apply my-2 list-disc space-y-1 pl-5; }
+.md ol { @apply my-2 list-decimal space-y-1 pl-5; }
+.md code { @apply rounded bg-raised px-1 py-0.5 font-mono text-[0.85em] break-words; }
+.md pre { @apply code-scroll my-3 rounded-lg bg-raised p-3; }
+.md pre code { @apply bg-transparent p-0; }
+.md a { @apply text-accent underline; }
+.md hr { @apply my-4 border-line; }
+.md em { @apply italic; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+pre.whitespace-pre .diff-line { min-width: max-content; }

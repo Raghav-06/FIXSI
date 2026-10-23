@@ -1,0 +1,11 @@
+{
+  "id": "bug-2-bulk-threshold",
+  "number": 2,
+  "kind": "Off-by-one money bug",
+  "title": "Bulk discount not applied when buying exactly 10",
+  "severity": "medium",
+  "report": "A customer bought exactly 10 gel pens for their office. Our site banner says 'Buy 10 or more, save 10%' but their receipt shows no bulk savings. They were charged the full price. A second customer with 12 pens got the discount fine.",
+  "logs": "2026-10-15T14:02:11.501Z INFO  shop.web    POST /cart/quote user=u_310 country=US\n2026-10-15T14:02:11.503Z INFO  shop.pricing quote lines=[PEN-01 x10 @2.50] merchandise=25.00 bulk_savings=0.00 discount=0.00 tax=2.06 shipping=5.99 total=33.05\n2026-10-15T14:05:40.019Z INFO  shop.pricing quote lines=[PEN-01 x12 @2.50] merchandise=30.00 bulk_savings=3.00 discount=0.00 tax=2.23 shipping=5.99 total=35.22\n2026-10-15T14:09:12.774Z WARN  support     ticket #4471 'promo not applied to my 10 pens' user=u_310 order=ord_5602",
+  "stack_trace": "",
+  "trigger": "import { Cart } from \"./shop/cart.js\";\nimport { formatMoney } from \"./shop/money.js\";\nimport { quote } from \"./shop/pricing.js\";\nimport { defaultCatalog } from \"./shop/products.js\";\n\nconst cart = new Cart(defaultCatalog());\ncart.add(\"PEN-01\", 10);\nconst q = quote(cart.items(), \"US\");\nconsole.log(`quote lines=[PEN-01 x10 @2.50] merchandise=${formatMoney(q.merchandise)} bulk_savings=${formatMoney(q.bulkSavings)} total=${formatMoney(q.total)}`);\nif (q.bulkSavings === 0) {\n  throw new Error(\"bulk promotion (10 or more = 10% off) not applied for quantity 10: bulk_savings=0.00\");\n}\n"
+}

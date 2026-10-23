@@ -1,0 +1,11 @@
+{
+  "id": "bug-1-missing-address",
+  "number": 1,
+  "kind": "Edge-case crash",
+  "title": "500 at checkout for customers without a saved address",
+  "severity": "high",
+  "report": "Since Tuesday, several new customers report a blank 'Something went wrong' page when they press Place order. Support noticed it only happens for brand-new accounts that never saved an address. Expected: a friendly 'please add a shipping address' message.",
+  "logs": "2026-10-14T09:12:03.114Z INFO  shop.web  POST /checkout user=u_1841 cart_lines=1\n2026-10-14T09:12:03.118Z ERROR shop.web  unhandled exception in POST /checkout request_id=7f3a9c\n2026-10-14T09:12:03.118Z ERROR shop.web  TypeError: Cannot read properties of undefined (reading 'country')\n2026-10-14T09:14:47.902Z INFO  shop.web  POST /checkout user=u_1842 cart_lines=2\n2026-10-14T09:14:47.905Z ERROR shop.web  unhandled exception in POST /checkout request_id=81bd02\n2026-10-14T09:14:47.905Z ERROR shop.web  TypeError: Cannot read properties of undefined (reading 'country')\n2026-10-14T09:15:10.330Z INFO  shop.web  POST /checkout user=u_77 cart_lines=3\n2026-10-14T09:15:10.351Z INFO  shop.orders order placed id=ord_5521 user=u_77 items=4 total=USD 58.31",
+  "stack_trace": "TypeError: Cannot read properties of undefined (reading 'country')\n    at OrderService.checkout (/srv/shop/shop/orders.js:54:45)\n    at postCheckout (/srv/shop/web/routes/checkout.js:88:24)\n    at Layer.handle [as handle_request] (/srv/shop/node_modules/express/lib/router/layer.js:95:5)",
+  "trigger": "import { Cart } from \"./shop/cart.js\";\nimport { defaultDiscounts } from \"./shop/discounts.js\";\nimport { Inventory } from \"./shop/inventory.js\";\nimport { OrderService } from \"./shop/orders.js\";\nimport { defaultCatalog } from \"./shop/products.js\";\nimport { UserDirectory } from \"./shop/users.js\";\n\nconst users = new UserDirectory();\nconst newbie = users.register(\"new.customer@example.com\", \"New Customer\");\nconst cart = new Cart(defaultCatalog());\ncart.add(\"MUG-01\");\nnew OrderService(new Inventory({ \"MUG-01\": 10 }), defaultDiscounts()).checkout(cart, newbie);\n"
+}

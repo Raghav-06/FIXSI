@@ -1,0 +1,573 @@
+{
+ "incident_id": "bug-3-rounding-regression",
+ "scripted": true,
+ "note": "Scripted model replies (no live key at record time); workspace, tests, patch and diff are real.",
+ "events": [
+  {
+   "t": 0,
+   "type": "run_started",
+   "payload": {
+    "title": "Order totals off by one cent since last deploy",
+    "source": "demo",
+    "mode": "live",
+    "incident": {
+     "source": "demo",
+     "title": "Order totals off by one cent since last deploy",
+     "report": "Finance reconciliation flagged 214 orders since Thursday's deploy where the tax we charged is one cent lower than the tax our payment provider computed. Example: a single Field Notes ($10.00) shipped to the US — we charged $0.82 tax, the provider says $0.83. Nothing changed in tax rates.",
+     "logs": "2026-10-16T08:00:01.002Z INFO  deploy      release v0.4.0 rolled out (commit range a1c3..f9e2)\n2026-10-16T11:31:22.410Z INFO  shop.pricing quote lines=[BOOK-01 x1 @10.00] merchandise=10.00 tax=0.82 shipping=5.99 total=16.81\n2026-10-16T11:31:22.900Z WARN  payments    tax mismatch order=ord_5710 ours=0.82 provider=0.83 delta=-0.01\n2026-10-16T13:44:05.115Z WARN  payments    tax mismatch order=ord_5733 ours=1.81 provider=1.82 delta=-0.01\n2026-10-16T17:02:44.600Z WARN  reconcile   214 orders with total delta=-0.01 since 2026-10-16T08:00Z",
+     "stack_trace": "",
+     "id": "bug-3-rounding-regression",
+     "number": 3,
+     "kind": "Regression from a recent commit",
+     "severity": "medium"
+    },
+    "sandbox": "local",
+    "scripted": false
+   }
+  },
+  {
+   "t": 0.283,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "trigger"
+   }
+  },
+  {
+   "t": 0.285,
+   "type": "log",
+   "payload": {
+    "message": "Workspace ready: isolated copy of the target repo (21 files).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 0.286,
+   "type": "log",
+   "payload": {
+    "message": "Running the existing test suite to record a baseline.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 0.286,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "baseline",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": null
+   }
+  },
+  {
+   "t": 1.147,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "baseline",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": null,
+    "passed": 30,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 856,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ add merges same sku (1.9822ms)\n✔ add rejects non-positive quantity (1.3603ms)\n✔ set quantity zero removes line (0.9902ms)\n✔ quantity cap (0.7283ms)\n✔ items() is a snapshot (1.1508ms)\n✔ percent code (3.0737ms)\n✔ fixed code needs minimum (52.0573ms)\n✔ expired code (0.2833ms)\n✔ reserve reduces available (1.755ms)\n✔ cannot reserve more than available (0.9548ms)\n✔ commit removes stock (0.2837ms)\n✔ release more than reserved is an error (0.2687ms)\n✔ checkout places order and reserves stock (34.8991ms)\n✔ checkout with empty cart is rejected (1.0338ms)\n✔ checkout with explicit address (1.3294ms)\n✔ checkout with discount code (0.9018ms)\n✔ cancel releases stock (0.4454ms)\n✔ fulfil commits stock (0.4856ms)\n✔ insufficient stock rolls back (0.579ms)\n✔ simple US quote (2.3327ms)\n✔ free shipping over threshold (0.4204ms)\n✔ heavy parcel surcharge (0.1831ms)\n✔ bulk discount on large order (0.2525ms)\n✔ no bulk discount on small order (0.3807ms)\n✔ unsupported country (0.7003ms)\n✔ get known product (2.0656ms)\n✔ unknown product throws (1.0187ms)\n✔ register and find (2.4554ms)\n✔ duplicate email rejected (1.0676ms)\n✔ first saved address becomes default (0.7633ms)\nℹ tests 30\nℹ suites 0\nℹ pass 30\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 648.4118\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 1.148,
+   "type": "log",
+   "payload": {
+    "message": "Baseline green: 30 tests pass.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 1.149,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "investigate"
+   }
+  },
+  {
+   "t": 1.151,
+   "type": "log",
+   "payload": {
+    "message": "Scanning the repo: 18 JavaScript files.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 1.863,
+   "type": "model_call",
+   "payload": {
+    "stage": "investigate",
+    "task": "pick_files",
+    "tier": "nano",
+    "model": "nvidia/nemotron-3-nano-30b-a3b",
+    "prompt_tokens": 488,
+    "completion_tokens": 30,
+    "latency_ms": 710,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 1.871,
+   "type": "log",
+   "payload": {
+    "message": "Read shop/pricing.js, shop/money.js",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.008,
+   "type": "log",
+   "payload": {
+    "message": "Checked recent git history (last 12 commits).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.303,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit 805d659: refactor: round prices consistently",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.36,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit 4a194ef: feat: bulk-buy promotion (10+ units, 10% off)",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.408,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit 694d094: feat: shipping and tax pricing",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.409,
+   "type": "log",
+   "payload": {
+    "message": "Generating ranked hypotheses (Nemotron Ultra).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 6.92,
+   "type": "model_call",
+   "payload": {
+    "stage": "investigate",
+    "task": "generate_hypotheses",
+    "tier": "ultra",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "prompt_tokens": 4257,
+    "completion_tokens": 246,
+    "latency_ms": 4508,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 6.923,
+   "type": "hypothesis_created",
+   "payload": {
+    "id": "h1",
+    "rank": 1,
+    "round": 1,
+    "title": "roundMoney() rounds through toFixed(2) on float dollars, losing half-cents (regression)",
+    "explanation": "The recent commit 'refactor: round prices consistently' replaced Math.round on cents with Math.round(Number((amount / 100).toFixed(2)) * 100). Dividing by 100 produces binary floats such as 0.825 that are really 0.82499999…, so toFixed(2) rounds half-cent amounts down.",
+    "suspected_files": [
+     "shop/money.js",
+     "shop/pricing.js"
+    ],
+    "confidence": 0.86,
+    "evidence_for": [
+     "Deltas are always -0.01 and started right after the v0.4.0 deploy",
+     "10.00 * 8.25% = 0.825 exactly — a half-cent case",
+     "git show of the refactor commit introduces toFixed(2) in roundMoney"
+    ],
+    "evidence_against": []
+   }
+  },
+  {
+   "t": 6.925,
+   "type": "hypothesis_created",
+   "payload": {
+    "id": "h2",
+    "rank": 2,
+    "round": 1,
+    "title": "US tax rate constant changed",
+    "explanation": "A wrong TAX_RATES_BPS.US would shift every tax amount.",
+    "suspected_files": [
+     "shop/pricing.js"
+    ],
+    "confidence": 0.08,
+    "evidence_for": [],
+    "evidence_against": [
+     "Rate is 825 bps and unchanged in history",
+     "Only some orders are affected"
+    ]
+   }
+  },
+  {
+   "t": 6.927,
+   "type": "log",
+   "payload": {
+    "message": "2 hypotheses on the board. Testing the most likely first.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 6.929,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "reproduce"
+   }
+  },
+  {
+   "t": 6.932,
+   "type": "log",
+   "payload": {
+    "message": "Testing h1: roundMoney() rounds through toFixed(2) on float dollars, losing half-cents (regression)",
+    "level": "info"
+   }
+  },
+  {
+   "t": 9.155,
+   "type": "model_call",
+   "payload": {
+    "stage": "reproduce",
+    "task": "write_repro_test",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 1864,
+    "completion_tokens": 182,
+    "latency_ms": 2210,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 9.158,
+   "type": "test_written",
+   "payload": {
+    "hypothesis_id": "h1",
+    "path": "tests/fixsi/half-cent-rounding.test.js",
+    "content": "import assert from \"node:assert/strict\";\nimport { test } from \"node:test\";\n\nimport { roundMoney } from \"../../shop/money.js\";\nimport { quote } from \"../../shop/pricing.js\";\nimport { makeShop } from \"../helpers.js\";\n\ntest(\"US tax rounds a half cent up\", () => {\n  const { cart } = makeShop();\n  cart.add(\"BOOK-01\", 1); // 10.00 * 8.25% = 0.825\n  const q = quote(cart.items(), \"US\");\n  assert.equal(q.tax, 83);\n  assert.equal(q.total, 1682);\n});\n\ntest(\"roundMoney rounds half-up\", () => {\n  assert.equal(roundMoney(181.5), 182);\n  assert.equal(roundMoney(267.5), 268);\n});\n",
+    "expected_failure": "tax 82 cents instead of 83 for a 10.00 US order",
+    "repaired": false
+   }
+  },
+  {
+   "t": 9.159,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "reproduce",
+    "selector": "tests/fixsi/half-cent-rounding.test.js",
+    "hypothesis_id": "h1",
+    "attempt": null
+   }
+  },
+  {
+   "t": 10.053,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "reproduce",
+    "selector": "tests/fixsi/half-cent-rounding.test.js",
+    "hypothesis_id": "h1",
+    "attempt": null,
+    "passed": 0,
+    "failed": 2,
+    "errors": 0,
+    "duration_ms": 889,
+    "exit_code": 1,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-470523/tests/fixsi/half-cent-rounding.test.js:12:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.start (node:internal/test_runner/test:833:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 82,\n    expected: 83,\n    operator: 'strictEqual'\n  }\n\n✖ roundMoney rounds half-up (2.0467ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  181 !== 182\n  \n      at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-470523/tests/fixsi/half-cent-rounding.test.js:17:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:633:18)\n      at Test.postRun (node:internal/test_runner/test:1045:19)\n      at Test.run (node:internal/test_runner/test:973:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 181,\n    expected: 182,\n    operator: 'strictEqual'\n  }\n\nℹ tests 2\nℹ suites 0\nℹ pass 0\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 593.7905\n\n✖ failing tests:\n\ntest at tests\\fixsi\\half-cent-rounding.test.js:8:1\n✖ US tax rounds a half cent up (4.7685ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  82 !== 83\n  \n      at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-470523/tests/fixsi/half-cent-rounding.test.js:12:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.start (node:internal/test_runner/test:833:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 82,\n    expected: 83,\n    operator: 'strictEqual'\n  }\n\ntest at tests\\fixsi\\half-cent-rounding.test.js:16:1\n✖ roundMoney rounds half-up (2.0467ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  181 !== 182\n  \n      at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-470523/tests/fixsi/half-cent-rounding.test.js:17:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:633:18)\n      at Test.postRun (node:internal/test_runner/test:1045:19)\n      at Test.run (node:internal/test_runner/test:973:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 181,\n    expected: 182,\n    operator: 'strictEqual'\n  }\n",
+    "failures": [
+     {
+      "nodeid": "tests/fixsi/half-cent-rounding.test.js::US tax rounds a half cent up",
+      "kind": "failure",
+      "message": "AssertionError: Expected values to be strictly equal:\n\n82 !== 83\n",
+      "details": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n82 !== 83\n\n    at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-470523/tests/fixsi/half-cent-rounding.test.js:12:10)\n    at Test.runInAsyncScope (node:async_hooks:211:14)\n    at Test.run (node:internal/test_runner/test:934:25)\n    at Test.start (node:internal/test_runner/test:833:17)\n    at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17)"
+     },
+     {
+      "nodeid": "tests/fixsi/half-cent-rounding.test.js::roundMoney rounds half-up",
+      "kind": "failure",
+      "message": "AssertionError: Expected values to be strictly equal:\n\n181 !== 182\n",
+      "details": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n181 !== 182\n\n    at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-470523/tests/fixsi/half-cent-rounding.test.js:17:10)\n    at Test.runInAsyncScope (node:async_hooks:211:14)\n    at Test.run (node:internal/test_runner/test:934:25)\n    at Test.processPendingSubtests (node:internal/test_runner/test:633:18)\n    at Test.postRun (node:internal/test_runner/test:1045:19)\n    at Test.run (node:internal/test_runner/test:973:12)\n    at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3)"
+     }
+    ]
+   }
+  },
+  {
+   "t": 10.776,
+   "type": "model_call",
+   "payload": {
+    "stage": "reproduce",
+    "task": "classify_failure",
+    "tier": "nano",
+    "model": "nvidia/nemotron-3-nano-30b-a3b",
+    "prompt_tokens": 680,
+    "completion_tokens": 31,
+    "latency_ms": 700,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 10.777,
+   "type": "evidence_added",
+   "payload": {
+    "hypothesis_id": "h1",
+    "kind": "for",
+    "text": "tests/fixsi/half-cent-rounding.test.js::US tax rounds a half cent up fails as predicted: AssertionError: Expected values to be strictly equal:"
+   }
+  },
+  {
+   "t": 10.778,
+   "type": "hypothesis_confirmed",
+   "payload": {
+    "id": "h1",
+    "reason": "tests/fixsi/half-cent-rounding.test.js::US tax rounds a half cent up fails as predicted: AssertionError: Expected values to be strictly equal:",
+    "test_path": "tests/fixsi/half-cent-rounding.test.js"
+   }
+  },
+  {
+   "t": 10.779,
+   "type": "log",
+   "payload": {
+    "message": "h1 confirmed — the reproduction test fails exactly as predicted.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 10.78,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "fix"
+   }
+  },
+  {
+   "t": 10.781,
+   "type": "log",
+   "payload": {
+    "message": "Fix attempt 1/3.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 13.001,
+   "type": "model_call",
+   "payload": {
+    "stage": "fix",
+    "task": "write_fix",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 1995,
+    "completion_tokens": 67,
+    "latency_ms": 2213,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 13.002,
+   "type": "patch_proposed",
+   "payload": {
+    "attempt": 1,
+    "explanation": "Round the cent amount directly with Math.round instead of going through float dollars and toFixed(2).",
+    "edits": [
+     {
+      "path": "shop/money.js",
+      "search": "  return Math.round(Number((amount / 100).toFixed(2)) * 100);",
+      "replace": "  return Math.round(amount);"
+     }
+    ]
+   }
+  },
+  {
+   "t": 13.105,
+   "type": "patch_applied",
+   "payload": {
+    "attempt": 1,
+    "files": [
+     "shop/money.js"
+    ],
+    "diff": "diff --git a/shop/money.js b/shop/money.js\nindex 6a6c724..aa74523 100644\n--- a/shop/money.js\n+++ b/shop/money.js\n@@ -17,7 +17,7 @@ export function toCents(value) {\n \n /** Round a (possibly fractional) amount of cents to whole cents, half-up (accounting convention). */\n export function roundMoney(amount) {\n-  return Math.round(Number((amount / 100).toFixed(2)) * 100);\n+  return Math.round(amount);\n }\n \n export function formatMoney(cents, currency = \"USD\") {\n"
+   }
+  },
+  {
+   "t": 13.105,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "verify"
+   }
+  },
+  {
+   "t": 13.106,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "verify_repro",
+    "selector": "tests/fixsi/half-cent-rounding.test.js",
+    "hypothesis_id": null,
+    "attempt": 1
+   }
+  },
+  {
+   "t": 13.46,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "verify_repro",
+    "selector": "tests/fixsi/half-cent-rounding.test.js",
+    "hypothesis_id": null,
+    "attempt": 1,
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 350,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ US tax rounds a half cent up (1.7388ms)\n✔ roundMoney rounds half-up (0.1451ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 202.322\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 13.461,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "verify_suite",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": 1
+   }
+  },
+  {
+   "t": 14.441,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "verify_suite",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": 1,
+    "passed": 32,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 975,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ add merges same sku (9.1017ms)\n✔ add rejects non-positive quantity (1.412ms)\n✔ set quantity zero removes line (1.3939ms)\n✔ quantity cap (1.3355ms)\n✔ items() is a snapshot (0.6934ms)\n✔ percent code (3.5384ms)\n✔ fixed code needs minimum (128.9055ms)\n✔ expired code (0.3799ms)\n✔ US tax rounds a half cent up (6.0433ms)\n✔ roundMoney rounds half-up (0.2859ms)\n✔ reserve reduces available (1.5085ms)\n✔ cannot reserve more than available (0.7683ms)\n✔ commit removes stock (0.2738ms)\n✔ release more than reserved is an error (0.3003ms)\n✔ checkout places order and reserves stock (55.6897ms)\n✔ checkout with empty cart is rejected (1.1748ms)\n✔ checkout with explicit address (1.614ms)\n✔ checkout with discount code (1.2281ms)\n✔ cancel releases stock (0.5999ms)\n✔ fulfil commits stock (0.6434ms)\n✔ insufficient stock rolls back (0.6468ms)\n✔ simple US quote (2.2619ms)\n✔ free shipping over threshold (0.5449ms)\n✔ heavy parcel surcharge (0.2197ms)\n✔ bulk discount on large order (0.6976ms)\n✔ no bulk discount on small order (0.4931ms)\n✔ unsupported country (0.926ms)\n✔ get known product (1.9131ms)\n✔ unknown product throws (1.0983ms)\n✔ register and find (1.3038ms)\n✔ duplicate email rejected (0.6471ms)\n✔ first saved address becomes default (0.2106ms)\nℹ tests 32\nℹ suites 0\nℹ pass 32\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 832.0112\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 14.443,
+   "type": "log",
+   "payload": {
+    "message": "Verified: reproduction test passes and all 32 tests are green.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 14.444,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "report"
+   }
+  },
+  {
+   "t": 19.157,
+   "type": "model_call",
+   "payload": {
+    "stage": "report",
+    "task": "postmortem",
+    "tier": "ultra",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "prompt_tokens": 1087,
+    "completion_tokens": 291,
+    "latency_ms": 4501,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 21.376,
+   "type": "model_call",
+   "payload": {
+    "stage": "report",
+    "task": "pr_title",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 165,
+    "completion_tokens": 15,
+    "latency_ms": 2202,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 21.378,
+   "type": "report_ready",
+   "payload": {
+    "title": "Float rounding in roundMoney() drops half-cents",
+    "markdown": "# Postmortem: Float rounding in roundMoney() drops half-cents\n\n## Summary\nSince v0.4.0, amounts ending in exactly half a cent were rounded down, so tax and totals were one cent low on many orders.\n\n## Impact\n214 orders under-collected tax by $0.01, causing reconciliation mismatches with the payment provider.\n\n## Root cause\nCommit 'refactor: round prices consistently' centralised rounding in money.roundMoney but implemented it as Math.round(Number((amount / 100).toFixed(2)) * 100). Binary floats cannot represent values like 0.825, and toFixed(2) rounds the stored value 0.82499999… down.\n\n## Evidence\n- Reconciliation deltas are all -0.01 and begin at the v0.4.0 deploy\n- git show of the refactor commit introduces toFixed(2) in roundMoney\n- Reproduction test: tax 82 !== 83 for a 10.00 US order\n\n## Fix\nroundMoney now rounds the integer-cent amount directly with Math.round (half-up for positive amounts).\n\n## How it was verified\nHalf-cent tests pass; the existing pricing and order tests still pass.\n\n- Reproduction test `tests/fixsi/half-cent-rounding.test.js` failed before the fix and passes after it.\n- Full suite: 32 passed, 0 failed (baseline: 30 passed). Pre-existing tests were not modified.\n- Fix attempts: 1.\n\n## Prevention\n- Lint rule banning toFixed() and dollar floats in money code\n- Property test comparing roundMoney with exact half-up rounding on random half-cent values\n\n---\n_Generated by Fixsi — it doesn't guess, it proves. Models: nvidia/nemotron-3-nano-30b-a3b, nvidia/nemotron-3-super-120b-a12b, nvidia/nemotron-3-ultra-550b-a55b._",
+    "postmortem": {
+     "title": "Float rounding in roundMoney() drops half-cents",
+     "summary": "Since v0.4.0, amounts ending in exactly half a cent were rounded down, so tax and totals were one cent low on many orders.",
+     "impact": "214 orders under-collected tax by $0.01, causing reconciliation mismatches with the payment provider.",
+     "root_cause": "Commit 'refactor: round prices consistently' centralised rounding in money.roundMoney but implemented it as Math.round(Number((amount / 100).toFixed(2)) * 100). Binary floats cannot represent values like 0.825, and toFixed(2) rounds the stored value 0.82499999… down.",
+     "evidence": [
+      "Reconciliation deltas are all -0.01 and begin at the v0.4.0 deploy",
+      "git show of the refactor commit introduces toFixed(2) in roundMoney",
+      "Reproduction test: tax 82 !== 83 for a 10.00 US order"
+     ],
+     "fix": "roundMoney now rounds the integer-cent amount directly with Math.round (half-up for positive amounts).",
+     "verification": "Half-cent tests pass; the existing pricing and order tests still pass.",
+     "prevention": [
+      "Lint rule banning toFixed() and dollar floats in money code",
+      "Property test comparing roundMoney with exact half-up rounding on random half-cent values"
+     ]
+    },
+    "diff": "diff --git a/shop/money.js b/shop/money.js\nindex 6a6c724..aa74523 100644\n--- a/shop/money.js\n+++ b/shop/money.js\n@@ -17,7 +17,7 @@ export function toCents(value) {\n \n /** Round a (possibly fractional) amount of cents to whole cents, half-up (accounting convention). */\n export function roundMoney(amount) {\n-  return Math.round(Number((amount / 100).toFixed(2)) * 100);\n+  return Math.round(amount);\n }\n \n export function formatMoney(cents, currency = \"USD\") {\ndiff --git a/tests/fixsi/half-cent-rounding.test.js b/tests/fixsi/half-cent-rounding.test.js\nnew file mode 100644\nindex 0000000..4156a6a\n--- /dev/null\n+++ b/tests/fixsi/half-cent-rounding.test.js\n@@ -0,0 +1,19 @@\n+import assert from \"node:assert/strict\";\n+import { test } from \"node:test\";\n+\n+import { roundMoney } from \"../../shop/money.js\";\n+import { quote } from \"../../shop/pricing.js\";\n+import { makeShop } from \"../helpers.js\";\n+\n+test(\"US tax rounds a half cent up\", () => {\n+  const { cart } = makeShop();\n+  cart.add(\"BOOK-01\", 1); // 10.00 * 8.25% = 0.825\n+  const q = quote(cart.items(), \"US\");\n+  assert.equal(q.tax, 83);\n+  assert.equal(q.total, 1682);\n+});\n+\n+test(\"roundMoney rounds half-up\", () => {\n+  assert.equal(roundMoney(181.5), 182);\n+  assert.equal(roundMoney(267.5), 268);\n+});\n",
+    "test_path": "tests/fixsi/half-cent-rounding.test.js",
+    "test_content": "import assert from \"node:assert/strict\";\nimport { test } from \"node:test\";\n\nimport { roundMoney } from \"../../shop/money.js\";\nimport { quote } from \"../../shop/pricing.js\";\nimport { makeShop } from \"../helpers.js\";\n\ntest(\"US tax rounds a half cent up\", () => {\n  const { cart } = makeShop();\n  cart.add(\"BOOK-01\", 1); // 10.00 * 8.25% = 0.825\n  const q = quote(cart.items(), \"US\");\n  assert.equal(q.tax, 83);\n  assert.equal(q.total, 1682);\n});\n\ntest(\"roundMoney rounds half-up\", () => {\n  assert.equal(roundMoney(181.5), 182);\n  assert.equal(roundMoney(267.5), 268);\n});\n",
+    "pr_title": "fix: round money half-up on cents, not via toFixed",
+    "models": [
+     "nvidia/nemotron-3-nano-30b-a3b",
+     "nvidia/nemotron-3-super-120b-a12b",
+     "nvidia/nemotron-3-ultra-550b-a55b"
+    ]
+   }
+  },
+  {
+   "t": 21.38,
+   "type": "run_completed",
+   "payload": {
+    "status": "succeeded",
+    "duration_ms": 21380,
+    "tokens": 11398,
+    "pr_url": null
+   }
+  }
+ ]
+}

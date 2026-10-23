@@ -1,0 +1,693 @@
+{
+ "incident_id": "bug-4-misleading-inventory",
+ "scripted": true,
+ "note": "Scripted model replies (no live key at record time); workspace, tests, patch and diff are real.",
+ "events": [
+  {
+   "t": 0,
+   "type": "run_started",
+   "payload": {
+    "title": "InventoryError when cancelling an order after 'Buy again'",
+    "source": "demo",
+    "mode": "live",
+    "incident": {
+     "source": "demo",
+     "title": "InventoryError when cancelling an order after 'Buy again'",
+     "report": "Customer service can't cancel some orders: the admin panel throws an inventory error. It seems to affect customers who used 'Buy again' on that order and then changed quantities in their new cart. The stack trace points into the inventory module, so we suspect the reservation bookkeeping.",
+     "logs": "2026-10-16T19:20:14.020Z INFO  shop.orders order placed id=ord_1000 user=u_1 items=2 total=USD 31.97\n2026-10-16T19:24:51.660Z INFO  shop.web    POST /orders/ord_1000/buy-again user=u_1\n2026-10-16T19:25:03.118Z INFO  shop.web    POST /cart/add sku=MUG-01 qty=3 user=u_1\n2026-10-16T19:31:40.002Z INFO  shop.admin  cancel requested order=ord_1000 agent=cs_14\n2026-10-16T19:31:40.004Z ERROR shop.admin  unhandled exception during cancel order=ord_1000\n2026-10-16T19:31:40.004Z ERROR shop.admin  InventoryError: cannot release 5 units of MUG-01: only 2 reserved",
+     "stack_trace": "InventoryError: cannot release 5 units of MUG-01: only 2 reserved\n    at Inventory.release (/srv/shop/shop/inventory.js:55:13)\n    at OrderService.cancel (/srv/shop/shop/orders.js:101:23)\n    at cancelOrder (/srv/shop/admin/orders.js:41:12)",
+     "id": "bug-4-misleading-inventory",
+     "number": 4,
+     "kind": "The misleading one",
+     "severity": "high"
+    },
+    "sandbox": "local",
+    "scripted": false
+   }
+  },
+  {
+   "t": 0.335,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "trigger"
+   }
+  },
+  {
+   "t": 0.339,
+   "type": "log",
+   "payload": {
+    "message": "Workspace ready: isolated copy of the target repo (21 files).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 0.34,
+   "type": "log",
+   "payload": {
+    "message": "Running the existing test suite to record a baseline.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 0.341,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "baseline",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": null
+   }
+  },
+  {
+   "t": 1.452,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "baseline",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": null,
+    "passed": 30,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 1107,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ add merges same sku (1.9909ms)\n✔ add rejects non-positive quantity (4.2103ms)\n✔ set quantity zero removes line (0.4865ms)\n✔ quantity cap (0.3236ms)\n✔ items() is a snapshot (0.5969ms)\n✔ percent code (2.4045ms)\n✔ fixed code needs minimum (45.0803ms)\n✔ expired code (0.5049ms)\n✔ reserve reduces available (1.7507ms)\n✔ cannot reserve more than available (0.6807ms)\n✔ commit removes stock (0.24ms)\n✔ release more than reserved is an error (0.266ms)\n✔ checkout places order and reserves stock (43.4937ms)\n✔ checkout with empty cart is rejected (1.7741ms)\n✔ checkout with explicit address (0.6292ms)\n✔ checkout with discount code (1.4908ms)\n✔ cancel releases stock (0.5753ms)\n✔ fulfil commits stock (0.5035ms)\n✔ insufficient stock rolls back (0.6308ms)\n✔ simple US quote (2.5556ms)\n✔ free shipping over threshold (0.4762ms)\n✔ heavy parcel surcharge (0.2221ms)\n✔ bulk discount on large order (0.2947ms)\n✔ no bulk discount on small order (0.4901ms)\n✔ unsupported country (0.9085ms)\n✔ get known product (1.7466ms)\n✔ unknown product throws (0.7584ms)\n✔ register and find (2.0014ms)\n✔ duplicate email rejected (1.0723ms)\n✔ first saved address becomes default (0.3571ms)\nℹ tests 30\nℹ suites 0\nℹ pass 30\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 919.9181\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 1.453,
+   "type": "log",
+   "payload": {
+    "message": "Baseline green: 30 tests pass.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 1.453,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "investigate"
+   }
+  },
+  {
+   "t": 1.456,
+   "type": "log",
+   "payload": {
+    "message": "Scanning the repo: 18 JavaScript files.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 1.457,
+   "type": "log",
+   "payload": {
+    "message": "Stack trace mentions: shop/inventory.js, shop/orders.js",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.173,
+   "type": "model_call",
+   "payload": {
+    "stage": "investigate",
+    "task": "pick_files",
+    "tier": "nano",
+    "model": "nvidia/nemotron-3-nano-30b-a3b",
+    "prompt_tokens": 560,
+    "completion_tokens": 38,
+    "latency_ms": 714,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 2.181,
+   "type": "log",
+   "payload": {
+    "message": "Read shop/inventory.js, shop/orders.js, shop/cart.js",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.328,
+   "type": "log",
+   "payload": {
+    "message": "Checked recent git history (last 12 commits).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.487,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit ea06318: feat: 'Buy again' on past orders",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.544,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit e9e4ee4: feat: checkout, cancellation and fulfilment",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.598,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit 01c1835: feat: shopping cart",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.599,
+   "type": "log",
+   "payload": {
+    "message": "Generating ranked hypotheses (Nemotron Ultra).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 7.124,
+   "type": "model_call",
+   "payload": {
+    "stage": "investigate",
+    "task": "generate_hypotheses",
+    "tier": "ultra",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "prompt_tokens": 5401,
+    "completion_tokens": 325,
+    "latency_ms": 4512,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 7.129,
+   "type": "hypothesis_created",
+   "payload": {
+    "id": "h1",
+    "rank": 1,
+    "round": 1,
+    "title": "Inventory.release() mis-tracks reserved stock",
+    "explanation": "The exception is thrown inside Inventory.release; the reservation counter may be decremented or keyed incorrectly so a legitimate release looks like an over-release.",
+    "suspected_files": [
+     "shop/inventory.js"
+    ],
+    "confidence": 0.58,
+    "evidence_for": [
+     "Stack trace ends in inventory.js release()",
+     "Message: 'only 2 reserved'"
+    ],
+    "evidence_against": [
+     "Only orders touched by 'Buy again' are affected"
+    ]
+   }
+  },
+  {
+   "t": 7.131,
+   "type": "hypothesis_created",
+   "payload": {
+    "id": "h2",
+    "rank": 2,
+    "round": 1,
+    "title": "Cart.restore() shares line items with the past order",
+    "explanation": "buyAgain() passes order.lines into Cart.restore, which stores the same LineItem objects. Adding 3 more mugs mutates the order's line from 2 to 5, so cancel() tries to release 5 units while only 2 are reserved.",
+    "suspected_files": [
+     "shop/cart.js",
+     "shop/orders.js"
+    ],
+    "confidence": 0.34,
+    "evidence_for": [
+     "Order was placed with 2 mugs, release asks for 5 = 2 + 3 added after Buy again",
+     "restore() doc comment promises the cart keeps its own copies"
+    ],
+    "evidence_against": [
+     "Trace does not include cart.js"
+    ]
+   }
+  },
+  {
+   "t": 7.133,
+   "type": "hypothesis_created",
+   "payload": {
+    "id": "h3",
+    "rank": 3,
+    "round": 1,
+    "title": "cancel() releases each line twice",
+    "explanation": "A duplicated release loop would exceed reservations.",
+    "suspected_files": [
+     "shop/orders.js"
+    ],
+    "confidence": 0.1,
+    "evidence_for": [],
+    "evidence_against": [
+     "The test 'cancel releases stock' passes"
+    ]
+   }
+  },
+  {
+   "t": 7.135,
+   "type": "log",
+   "payload": {
+    "message": "3 hypotheses on the board. Testing the most likely first.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 7.136,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "reproduce"
+   }
+  },
+  {
+   "t": 7.138,
+   "type": "log",
+   "payload": {
+    "message": "Testing h1: Inventory.release() mis-tracks reserved stock",
+    "level": "info"
+   }
+  },
+  {
+   "t": 9.347,
+   "type": "model_call",
+   "payload": {
+    "stage": "reproduce",
+    "task": "write_repro_test",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 3112,
+    "completion_tokens": 194,
+    "latency_ms": 2204,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 9.354,
+   "type": "test_written",
+   "payload": {
+    "hypothesis_id": "h1",
+    "path": "tests/fixsi/inventory-release-bookkeeping.test.js",
+    "content": "import assert from \"node:assert/strict\";\nimport { test } from \"node:test\";\n\nimport { Inventory } from \"../../shop/inventory.js\";\n\ntest(\"release returns reserved stock\", () => {\n  const inv = new Inventory({ \"MUG-01\": 50 });\n  inv.reserve(\"MUG-01\", 2);\n  inv.release(\"MUG-01\", 2);\n  assert.equal(inv.reserved(\"MUG-01\"), 0);\n  assert.equal(inv.available(\"MUG-01\"), 50);\n});\n\ntest(\"partial releases accumulate\", () => {\n  const inv = new Inventory({ \"MUG-01\": 50 });\n  inv.reserve(\"MUG-01\", 3);\n  inv.release(\"MUG-01\", 1);\n  inv.release(\"MUG-01\", 2);\n  assert.equal(inv.reserved(\"MUG-01\"), 0);\n});\n",
+    "expected_failure": "reserved count is wrong after reserve + release",
+    "repaired": false
+   }
+  },
+  {
+   "t": 9.357,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "reproduce",
+    "selector": "tests/fixsi/inventory-release-bookkeeping.test.js",
+    "hypothesis_id": "h1",
+    "attempt": null
+   }
+  },
+  {
+   "t": 9.739,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "reproduce",
+    "selector": "tests/fixsi/inventory-release-bookkeeping.test.js",
+    "hypothesis_id": "h1",
+    "attempt": null,
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 373,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ release returns reserved stock (2.4443ms)\n✔ partial releases accumulate (0.5596ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 174.4563\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 9.742,
+   "type": "evidence_added",
+   "payload": {
+    "hypothesis_id": "h1",
+    "kind": "against",
+    "text": "reproduction test passed (2 passed): the predicted defect is absent"
+   }
+  },
+  {
+   "t": 9.743,
+   "type": "hypothesis_rejected",
+   "payload": {
+    "id": "h1",
+    "reason": "reproduction test passed (2 passed): the predicted defect is absent",
+    "test_path": null
+   }
+  },
+  {
+   "t": 9.743,
+   "type": "log",
+   "payload": {
+    "message": "h1 rejected: reproduction test passed (2 passed): the predicted defect is absent",
+    "level": "warn"
+   }
+  },
+  {
+   "t": 9.744,
+   "type": "log",
+   "payload": {
+    "message": "Testing h2: Cart.restore() shares line items with the past order",
+    "level": "info"
+   }
+  },
+  {
+   "t": 11.948,
+   "type": "model_call",
+   "payload": {
+    "stage": "reproduce",
+    "task": "write_repro_test",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 3143,
+    "completion_tokens": 254,
+    "latency_ms": 2202,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 11.952,
+   "type": "test_written",
+   "payload": {
+    "hypothesis_id": "h2",
+    "path": "tests/fixsi/buy-again-does-not-mutate-order.test.js",
+    "content": "import assert from \"node:assert/strict\";\nimport { test } from \"node:test\";\n\nimport { Cart } from \"../../shop/cart.js\";\nimport { makeShop } from \"../helpers.js\";\n\ntest(\"buy-again cart edits do not change the past order\", () => {\n  const { cart, orders, user, catalog } = makeShop();\n  cart.add(\"MUG-01\", 2);\n  const order = orders.checkout(cart, user);\n  const again = orders.buyAgain(order.id, new Cart(catalog));\n  again.add(\"MUG-01\", 3);\n  assert.equal(order.lines[0].quantity, 2);\n});\n\ntest(\"cancel after buy again succeeds\", () => {\n  const { cart, orders, user, catalog, inventory } = makeShop();\n  cart.add(\"MUG-01\", 2);\n  const order = orders.checkout(cart, user);\n  orders.buyAgain(order.id, new Cart(catalog)).add(\"MUG-01\", 3);\n  orders.cancel(order.id);\n  assert.equal(inventory.reserved(\"MUG-01\"), 0);\n});\n",
+    "expected_failure": "order line quantity changes from 2 to 5 after editing the new cart",
+    "repaired": false
+   }
+  },
+  {
+   "t": 11.953,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "reproduce",
+    "selector": "tests/fixsi/buy-again-does-not-mutate-order.test.js",
+    "hypothesis_id": "h2",
+    "attempt": null
+   }
+  },
+  {
+   "t": 12.499,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "reproduce",
+    "selector": "tests/fixsi/buy-again-does-not-mutate-order.test.js",
+    "hypothesis_id": "h2",
+    "attempt": null,
+    "passed": 0,
+    "failed": 2,
+    "errors": 0,
+    "duration_ms": 538,
+    "exit_code": 1,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "7:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 5,\n    expected: 2,\n    operator: 'strictEqual'\n  }\n\n✖ cancel after buy again succeeds (2.1494ms)\n  Error [InventoryError]: cannot release 5 units of MUG-01: only 2 reserved\n      at Inventory.release (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/shop/inventory.js:55:13)\n      at OrderService.cancel (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/shop/orders.js:101:23)\n      at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/tests/fixsi/buy-again-does-not-mutate-order.test.js:21:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:633:18)\n      at Test.postRun (node:internal/test_runner/test:1045:19)\n      at Test.run (node:internal/test_runner/test:973:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3)\n\nℹ tests 2\nℹ suites 0\nℹ pass 0\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 322.9831\n\n✖ failing tests:\n\ntest at tests\\fixsi\\buy-again-does-not-mutate-order.test.js:7:1\n✖ buy-again cart edits do not change the past order (61.4041ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  5 !== 2\n  \n      at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/tests/fixsi/buy-again-does-not-mutate-order.test.js:13:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.start (node:internal/test_runner/test:833:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 5,\n    expected: 2,\n    operator: 'strictEqual'\n  }\n\ntest at tests\\fixsi\\buy-again-does-not-mutate-order.test.js:16:1\n✖ cancel after buy again succeeds (2.1494ms)\n  Error [InventoryError]: cannot release 5 units of MUG-01: only 2 reserved\n      at Inventory.release (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/shop/inventory.js:55:13)\n      at OrderService.cancel (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/shop/orders.js:101:23)\n      at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/tests/fixsi/buy-again-does-not-mutate-order.test.js:21:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:633:18)\n      at Test.postRun (node:internal/test_runner/test:1045:19)\n      at Test.run (node:internal/test_runner/test:973:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3)\n",
+    "failures": [
+     {
+      "nodeid": "tests/fixsi/buy-again-does-not-mutate-order.test.js::buy-again cart edits do not change the past order",
+      "kind": "failure",
+      "message": "AssertionError: Expected values to be strictly equal:\n\n5 !== 2\n",
+      "details": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n5 !== 2\n\n    at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/tests/fixsi/buy-again-does-not-mutate-order.test.js:13:10)\n    at Test.runInAsyncScope (node:async_hooks:211:14)\n    at Test.run (node:internal/test_runner/test:934:25)\n    at Test.start (node:internal/test_runner/test:833:17)\n    at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17)"
+     },
+     {
+      "nodeid": "tests/fixsi/buy-again-does-not-mutate-order.test.js::cancel after buy again succeeds",
+      "kind": "failure",
+      "message": "InventoryError: cannot release 5 units of MUG-01: only 2 reserved",
+      "details": "InventoryError: cannot release 5 units of MUG-01: only 2 reserved\n    at Inventory.release (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/shop/inventory.js:55:13)\n    at OrderService.cancel (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/shop/orders.js:101:23)\n    at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-2303fa/tests/fixsi/buy-again-does-not-mutate-order.test.js:21:10)\n    at Test.runInAsyncScope (node:async_hooks:211:14)\n    at Test.run (node:internal/test_runner/test:934:25)\n    at Test.processPendingSubtests (node:internal/test_runner/test:633:18)\n    at Test.postRun (node:internal/test_runner/test:1045:19)\n    at Test.run (node:internal/test_runner/test:973:12)\n    at async startSubtestAfterBootstrap (node:internal/test_runner/harness:297:3)"
+     }
+    ]
+   }
+  },
+  {
+   "t": 13.208,
+   "type": "model_call",
+   "payload": {
+    "stage": "reproduce",
+    "task": "classify_failure",
+    "tier": "nano",
+    "model": "nvidia/nemotron-3-nano-30b-a3b",
+    "prompt_tokens": 733,
+    "completion_tokens": 35,
+    "latency_ms": 705,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 13.21,
+   "type": "evidence_added",
+   "payload": {
+    "hypothesis_id": "h2",
+    "kind": "for",
+    "text": "tests/fixsi/buy-again-does-not-mutate-order.test.js::buy-again cart edits do not change the past order fails as predicted: AssertionError: Expected values to be strictly equal:"
+   }
+  },
+  {
+   "t": 13.212,
+   "type": "hypothesis_confirmed",
+   "payload": {
+    "id": "h2",
+    "reason": "tests/fixsi/buy-again-does-not-mutate-order.test.js::buy-again cart edits do not change the past order fails as predicted: AssertionError: Expected values to be strictly equal:",
+    "test_path": "tests/fixsi/buy-again-does-not-mutate-order.test.js"
+   }
+  },
+  {
+   "t": 13.213,
+   "type": "log",
+   "payload": {
+    "message": "h2 confirmed — the reproduction test fails exactly as predicted.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 13.215,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "fix"
+   }
+  },
+  {
+   "t": 13.218,
+   "type": "log",
+   "payload": {
+    "message": "Fix attempt 1/3.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 15.434,
+   "type": "model_call",
+   "payload": {
+    "stage": "fix",
+    "task": "write_fix",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 3423,
+    "completion_tokens": 58,
+    "latency_ms": 2204,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 15.436,
+   "type": "patch_proposed",
+   "payload": {
+    "attempt": 1,
+    "explanation": "restore() stores copies of the saved items, as its doc comment promises.",
+    "edits": [
+     {
+      "path": "shop/cart.js",
+      "search": "      this._lines.set(item.sku, item);",
+      "replace": "      this._lines.set(item.sku, item.copy());"
+     }
+    ]
+   }
+  },
+  {
+   "t": 15.523,
+   "type": "patch_applied",
+   "payload": {
+    "attempt": 1,
+    "files": [
+     "shop/cart.js"
+    ],
+    "diff": "diff --git a/shop/cart.js b/shop/cart.js\nindex 1c86ad0..3af9644 100644\n--- a/shop/cart.js\n+++ b/shop/cart.js\n@@ -85,7 +85,7 @@ export class Cart {\n   restore(items) {\n     this._lines = new Map();\n     for (const item of items) {\n-      this._lines.set(item.sku, item);\n+      this._lines.set(item.sku, item.copy());\n     }\n   }\n \n"
+   }
+  },
+  {
+   "t": 15.525,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "verify"
+   }
+  },
+  {
+   "t": 15.527,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "verify_repro",
+    "selector": "tests/fixsi/buy-again-does-not-mutate-order.test.js",
+    "hypothesis_id": null,
+    "attempt": 1
+   }
+  },
+  {
+   "t": 15.951,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "verify_repro",
+    "selector": "tests/fixsi/buy-again-does-not-mutate-order.test.js",
+    "hypothesis_id": null,
+    "attempt": 1,
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 419,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ buy-again cart edits do not change the past order (24.344ms)\n✔ cancel after buy again succeeds (0.5222ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 247.3202\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 15.952,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "verify_suite",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": 1
+   }
+  },
+  {
+   "t": 16.803,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "verify_suite",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": 1,
+    "passed": 32,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 848,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ add merges same sku (2.5015ms)\n✔ add rejects non-positive quantity (1.0407ms)\n✔ set quantity zero removes line (1.1429ms)\n✔ quantity cap (0.6803ms)\n✔ items() is a snapshot (1.3587ms)\n✔ percent code (3.765ms)\n✔ fixed code needs minimum (49.2358ms)\n✔ expired code (0.2879ms)\n✔ buy-again cart edits do not change the past order (42.5639ms)\n✔ cancel after buy again succeeds (0.79ms)\n✔ reserve reduces available (1.521ms)\n✔ cannot reserve more than available (0.7551ms)\n✔ commit removes stock (0.2681ms)\n✔ release more than reserved is an error (0.2674ms)\n✔ checkout places order and reserves stock (30.103ms)\n✔ checkout with empty cart is rejected (1.0638ms)\n✔ checkout with explicit address (1.292ms)\n✔ checkout with discount code (0.764ms)\n✔ cancel releases stock (0.4386ms)\n✔ fulfil commits stock (0.3664ms)\n✔ insufficient stock rolls back (0.4029ms)\n✔ simple US quote (2.4888ms)\n✔ free shipping over threshold (0.4656ms)\n✔ heavy parcel surcharge (0.2192ms)\n✔ bulk discount on large order (0.2554ms)\n✔ no bulk discount on small order (0.4074ms)\n✔ unsupported country (0.6867ms)\n✔ get known product (1.497ms)\n✔ unknown product throws (0.5956ms)\n✔ register and find (2.6611ms)\n✔ duplicate email rejected (1.0176ms)\n✔ first saved address becomes default (0.3847ms)\nℹ tests 32\nℹ suites 0\nℹ pass 32\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 660.7264\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 16.805,
+   "type": "log",
+   "payload": {
+    "message": "Verified: reproduction test passes and all 32 tests are green.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 16.806,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "report"
+   }
+  },
+  {
+   "t": 21.5,
+   "type": "model_call",
+   "payload": {
+    "stage": "report",
+    "task": "postmortem",
+    "tier": "ultra",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "prompt_tokens": 1288,
+    "completion_tokens": 320,
+    "latency_ms": 4500,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 23.714,
+   "type": "model_call",
+   "payload": {
+    "stage": "report",
+    "task": "pr_title",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 157,
+    "completion_tokens": 19,
+    "latency_ms": 2212,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 23.715,
+   "type": "report_ready",
+   "payload": {
+    "title": "Cart.restore() aliased past order line items",
+    "markdown": "# Postmortem: Cart.restore() aliased past order line items\n\n## Summary\nCancelling an order failed with InventoryError after the customer used 'Buy again' and changed quantities, because the new cart shared LineItem objects with the old order.\n\n## Impact\nSupport could not cancel affected orders; reserved stock stayed locked and the order record showed quantities the customer never bought.\n\n## Root cause\nCart.restore() stored the order's LineItem objects directly. Cart.add() mutates line.quantity in place, so editing the new cart rewrote the past order (2 -> 5 mugs). Inventory.release() then correctly refused to release 5 units with only 2 reserved.\n\n## Evidence\n- Hypothesis 'Inventory.release() mis-tracks reserved stock' was disproven: reserve/release bookkeeping tests pass\n- Reproduction test showed order.lines[0].quantity === 5 after adding 3 to the new cart\n- Commit \"feat: 'Buy again' on past orders\" introduced restore()\n- Ruled out: _Inventory.release() mis-tracks reserved stock_ — reproduction test passed (2 passed): the predicted defect is absent\n\n## Fix\nrestore() now stores item.copy() for each saved line, matching its documented contract.\n\n## How it was verified\nBoth reproduction tests pass; the existing suite is unchanged and green.\n\n- Reproduction test `tests/fixsi/buy-again-does-not-mutate-order.test.js` failed before the fix and passes after it.\n- Full suite: 32 passed, 0 failed (baseline: 30 passed). Pre-existing tests were not modified.\n- Fix attempts: 1.\n\n## Prevention\n- Make LineItem immutable (Object.freeze) and return new objects on change\n- Test that APIs documented as 'copies' are not aliasing their inputs\n\n---\n_Generated by Fixsi — it doesn't guess, it proves. Models: nvidia/nemotron-3-nano-30b-a3b, nvidia/nemotron-3-super-120b-a12b, nvidia/nemotron-3-ultra-550b-a55b._",
+    "postmortem": {
+     "title": "Cart.restore() aliased past order line items",
+     "summary": "Cancelling an order failed with InventoryError after the customer used 'Buy again' and changed quantities, because the new cart shared LineItem objects with the old order.",
+     "impact": "Support could not cancel affected orders; reserved stock stayed locked and the order record showed quantities the customer never bought.",
+     "root_cause": "Cart.restore() stored the order's LineItem objects directly. Cart.add() mutates line.quantity in place, so editing the new cart rewrote the past order (2 -> 5 mugs). Inventory.release() then correctly refused to release 5 units with only 2 reserved.",
+     "evidence": [
+      "Hypothesis 'Inventory.release() mis-tracks reserved stock' was disproven: reserve/release bookkeeping tests pass",
+      "Reproduction test showed order.lines[0].quantity === 5 after adding 3 to the new cart",
+      "Commit \"feat: 'Buy again' on past orders\" introduced restore()"
+     ],
+     "fix": "restore() now stores item.copy() for each saved line, matching its documented contract.",
+     "verification": "Both reproduction tests pass; the existing suite is unchanged and green.",
+     "prevention": [
+      "Make LineItem immutable (Object.freeze) and return new objects on change",
+      "Test that APIs documented as 'copies' are not aliasing their inputs"
+     ]
+    },
+    "diff": "diff --git a/shop/cart.js b/shop/cart.js\nindex 1c86ad0..3af9644 100644\n--- a/shop/cart.js\n+++ b/shop/cart.js\n@@ -85,7 +85,7 @@ export class Cart {\n   restore(items) {\n     this._lines = new Map();\n     for (const item of items) {\n-      this._lines.set(item.sku, item);\n+      this._lines.set(item.sku, item.copy());\n     }\n   }\n \ndiff --git a/tests/fixsi/buy-again-does-not-mutate-order.test.js b/tests/fixsi/buy-again-does-not-mutate-order.test.js\nnew file mode 100644\nindex 0000000..71bf137\n--- /dev/null\n+++ b/tests/fixsi/buy-again-does-not-mutate-order.test.js\n@@ -0,0 +1,23 @@\n+import assert from \"node:assert/strict\";\n+import { test } from \"node:test\";\n+\n+import { Cart } from \"../../shop/cart.js\";\n+import { makeShop } from \"../helpers.js\";\n+\n+test(\"buy-again cart edits do not change the past order\", () => {\n+  const { cart, orders, user, catalog } = makeShop();\n+  cart.add(\"MUG-01\", 2);\n+  const order = orders.checkout(cart, user);\n+  const again = orders.buyAgain(order.id, new Cart(catalog));\n+  again.add(\"MUG-01\", 3);\n+  assert.equal(order.lines[0].quantity, 2);\n+});\n+\n+test(\"cancel after buy again succeeds\", () => {\n+  const { cart, orders, user, catalog, inventory } = makeShop();\n+  cart.add(\"MUG-01\", 2);\n+  const order = orders.checkout(cart, user);\n+  orders.buyAgain(order.id, new Cart(catalog)).add(\"MUG-01\", 3);\n+  orders.cancel(order.id);\n+  assert.equal(inventory.reserved(\"MUG-01\"), 0);\n+});\n",
+    "test_path": "tests/fixsi/buy-again-does-not-mutate-order.test.js",
+    "test_content": "import assert from \"node:assert/strict\";\nimport { test } from \"node:test\";\n\nimport { Cart } from \"../../shop/cart.js\";\nimport { makeShop } from \"../helpers.js\";\n\ntest(\"buy-again cart edits do not change the past order\", () => {\n  const { cart, orders, user, catalog } = makeShop();\n  cart.add(\"MUG-01\", 2);\n  const order = orders.checkout(cart, user);\n  const again = orders.buyAgain(order.id, new Cart(catalog));\n  again.add(\"MUG-01\", 3);\n  assert.equal(order.lines[0].quantity, 2);\n});\n\ntest(\"cancel after buy again succeeds\", () => {\n  const { cart, orders, user, catalog, inventory } = makeShop();\n  cart.add(\"MUG-01\", 2);\n  const order = orders.checkout(cart, user);\n  orders.buyAgain(order.id, new Cart(catalog)).add(\"MUG-01\", 3);\n  orders.cancel(order.id);\n  assert.equal(inventory.reserved(\"MUG-01\"), 0);\n});\n",
+    "pr_title": "fix: copy line items in Cart.restore to stop mutating past orders",
+    "models": [
+     "nvidia/nemotron-3-nano-30b-a3b",
+     "nvidia/nemotron-3-super-120b-a12b",
+     "nvidia/nemotron-3-ultra-550b-a55b"
+    ]
+   }
+  },
+  {
+   "t": 23.717,
+   "type": "run_completed",
+   "payload": {
+    "status": "succeeded",
+    "duration_ms": 23718,
+    "tokens": 19060,
+    "pr_url": null
+   }
+  }
+ ]
+}

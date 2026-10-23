@@ -1,0 +1,566 @@
+{
+ "incident_id": "bug-2-bulk-threshold",
+ "scripted": true,
+ "note": "Scripted model replies (no live key at record time); workspace, tests, patch and diff are real.",
+ "events": [
+  {
+   "t": 0,
+   "type": "run_started",
+   "payload": {
+    "title": "Bulk discount not applied when buying exactly 10",
+    "source": "demo",
+    "mode": "live",
+    "incident": {
+     "source": "demo",
+     "title": "Bulk discount not applied when buying exactly 10",
+     "report": "A customer bought exactly 10 gel pens for their office. Our site banner says 'Buy 10 or more, save 10%' but their receipt shows no bulk savings. They were charged the full price. A second customer with 12 pens got the discount fine.",
+     "logs": "2026-10-15T14:02:11.501Z INFO  shop.web    POST /cart/quote user=u_310 country=US\n2026-10-15T14:02:11.503Z INFO  shop.pricing quote lines=[PEN-01 x10 @2.50] merchandise=25.00 bulk_savings=0.00 discount=0.00 tax=2.06 shipping=5.99 total=33.05\n2026-10-15T14:05:40.019Z INFO  shop.pricing quote lines=[PEN-01 x12 @2.50] merchandise=30.00 bulk_savings=3.00 discount=0.00 tax=2.23 shipping=5.99 total=35.22\n2026-10-15T14:09:12.774Z WARN  support     ticket #4471 'promo not applied to my 10 pens' user=u_310 order=ord_5602",
+     "stack_trace": "",
+     "id": "bug-2-bulk-threshold",
+     "number": 2,
+     "kind": "Off-by-one money bug",
+     "severity": "medium"
+    },
+    "sandbox": "local",
+    "scripted": false
+   }
+  },
+  {
+   "t": 0.327,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "trigger"
+   }
+  },
+  {
+   "t": 0.33,
+   "type": "log",
+   "payload": {
+    "message": "Workspace ready: isolated copy of the target repo (21 files).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 0.331,
+   "type": "log",
+   "payload": {
+    "message": "Running the existing test suite to record a baseline.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 0.332,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "baseline",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": null
+   }
+  },
+  {
+   "t": 1.089,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "baseline",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": null,
+    "passed": 30,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 750,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ add merges same sku (2.105ms)\n✔ add rejects non-positive quantity (0.8525ms)\n✔ set quantity zero removes line (0.373ms)\n✔ quantity cap (0.2884ms)\n✔ items() is a snapshot (0.4193ms)\n✔ percent code (3.2524ms)\n✔ fixed code needs minimum (35.1776ms)\n✔ expired code (0.402ms)\n✔ reserve reduces available (1.5922ms)\n✔ cannot reserve more than available (0.6767ms)\n✔ commit removes stock (0.2423ms)\n✔ release more than reserved is an error (0.2444ms)\n✔ checkout places order and reserves stock (36.1517ms)\n✔ checkout with empty cart is rejected (1.2255ms)\n✔ checkout with explicit address (2.0076ms)\n✔ checkout with discount code (5.0284ms)\n✔ cancel releases stock (1.2336ms)\n✔ fulfil commits stock (1.4901ms)\n✔ insufficient stock rolls back (3.3743ms)\n✔ simple US quote (1.6149ms)\n✔ free shipping over threshold (0.2809ms)\n✔ heavy parcel surcharge (0.1271ms)\n✔ bulk discount on large order (0.1735ms)\n✔ no bulk discount on small order (0.2922ms)\n✔ unsupported country (0.4829ms)\n✔ get known product (1.7238ms)\n✔ unknown product throws (0.7689ms)\n✔ register and find (1.8279ms)\n✔ duplicate email rejected (0.7992ms)\n✔ first saved address becomes default (0.3341ms)\nℹ tests 30\nℹ suites 0\nℹ pass 30\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 600.3151\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 1.09,
+   "type": "log",
+   "payload": {
+    "message": "Baseline green: 30 tests pass.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 1.091,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "investigate"
+   }
+  },
+  {
+   "t": 1.095,
+   "type": "log",
+   "payload": {
+    "message": "Scanning the repo: 18 JavaScript files.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 1.812,
+   "type": "model_call",
+   "payload": {
+    "stage": "investigate",
+    "task": "pick_files",
+    "tier": "nano",
+    "model": "nvidia/nemotron-3-nano-30b-a3b",
+    "prompt_tokens": 469,
+    "completion_tokens": 37,
+    "latency_ms": 703,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 1.82,
+   "type": "log",
+   "payload": {
+    "message": "Read shop/promotions.js, shop/pricing.js, shop/cart.js",
+    "level": "info"
+   }
+  },
+  {
+   "t": 1.942,
+   "type": "log",
+   "payload": {
+    "message": "Checked recent git history (last 12 commits).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.155,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit 805d659: refactor: round prices consistently",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.246,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit ea06318: feat: 'Buy again' on past orders",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.346,
+   "type": "log",
+   "payload": {
+    "message": "Inspected commit 4a194ef: feat: bulk-buy promotion (10+ units, 10% off)",
+    "level": "info"
+   }
+  },
+  {
+   "t": 2.357,
+   "type": "log",
+   "payload": {
+    "message": "Generating ranked hypotheses (Nemotron Ultra).",
+    "level": "info"
+   }
+  },
+  {
+   "t": 6.867,
+   "type": "model_call",
+   "payload": {
+    "stage": "investigate",
+    "task": "generate_hypotheses",
+    "tier": "ultra",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "prompt_tokens": 4208,
+    "completion_tokens": 186,
+    "latency_ms": 4506,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 6.869,
+   "type": "hypothesis_created",
+   "payload": {
+    "id": "h1",
+    "rank": 1,
+    "round": 1,
+    "title": "bulkDiscount() uses '>' so exactly 10 units miss the promotion",
+    "explanation": "The promotion is documented as '10 or more', but the code checks `line.quantity > BULK_THRESHOLD`, excluding quantity 10.",
+    "suspected_files": [
+     "shop/promotions.js"
+    ],
+    "confidence": 0.82,
+    "evidence_for": [
+     "x10 line has bulk_savings=0.00, x12 line gets 3.00",
+     "Doc comment says 'quantity is 10 or more'"
+    ],
+    "evidence_against": []
+   }
+  },
+  {
+   "t": 6.871,
+   "type": "hypothesis_created",
+   "payload": {
+    "id": "h2",
+    "rank": 2,
+    "round": 1,
+    "title": "Bulk savings are rounded down to zero for low-priced items",
+    "explanation": "roundMoney could truncate small savings on cheap items like pens.",
+    "suspected_files": [
+     "shop/pricing.js",
+     "shop/money.js"
+    ],
+    "confidence": 0.12,
+    "evidence_for": [
+     "Pens are the cheapest item"
+    ],
+    "evidence_against": [
+     "12 pens get exactly 3.00 off"
+    ]
+   }
+  },
+  {
+   "t": 6.872,
+   "type": "log",
+   "payload": {
+    "message": "2 hypotheses on the board. Testing the most likely first.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 6.874,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "reproduce"
+   }
+  },
+  {
+   "t": 6.879,
+   "type": "log",
+   "payload": {
+    "message": "Testing h1: bulkDiscount() uses '>' so exactly 10 units miss the promotion",
+    "level": "info"
+   }
+  },
+  {
+   "t": 9.098,
+   "type": "model_call",
+   "payload": {
+    "stage": "reproduce",
+    "task": "write_repro_test",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 2288,
+    "completion_tokens": 171,
+    "latency_ms": 2206,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 9.104,
+   "type": "test_written",
+   "payload": {
+    "hypothesis_id": "h1",
+    "path": "tests/fixsi/bulk-threshold.test.js",
+    "content": "import assert from \"node:assert/strict\";\nimport { test } from \"node:test\";\n\nimport { quote } from \"../../shop/pricing.js\";\nimport { makeShop } from \"../helpers.js\";\n\ntest(\"bulk discount applies at exactly ten units\", () => {\n  const { cart } = makeShop();\n  cart.add(\"PEN-01\", 10); // 25.00 -> 10% off\n  assert.equal(quote(cart.items(), \"US\").bulkSavings, 250);\n});\n\ntest(\"bulk discount not applied at nine units\", () => {\n  const { cart } = makeShop();\n  cart.add(\"PEN-01\", 9);\n  assert.equal(quote(cart.items(), \"US\").bulkSavings, 0);\n});\n",
+    "expected_failure": "bulkSavings is 0 for exactly 10 units",
+    "repaired": false
+   }
+  },
+  {
+   "t": 9.106,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "reproduce",
+    "selector": "tests/fixsi/bulk-threshold.test.js",
+    "hypothesis_id": "h1",
+    "attempt": null
+   }
+  },
+  {
+   "t": 9.634,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "reproduce",
+    "selector": "tests/fixsi/bulk-threshold.test.js",
+    "hypothesis_id": "h1",
+    "attempt": null,
+    "passed": 1,
+    "failed": 1,
+    "errors": 0,
+    "duration_ms": 518,
+    "exit_code": 1,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✖ bulk discount applies at exactly ten units (2.7826ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  0 !== 250\n  \n      at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-f090fd/tests/fixsi/bulk-threshold.test.js:10:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.start (node:internal/test_runner/test:833:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 250,\n    operator: 'strictEqual'\n  }\n\n✔ bulk discount not applied at nine units (0.478ms)\nℹ tests 2\nℹ suites 0\nℹ pass 1\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 258.882\n\n✖ failing tests:\n\ntest at tests\\fixsi\\bulk-threshold.test.js:7:1\n✖ bulk discount applies at exactly ten units (2.7826ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  0 !== 250\n  \n      at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-f090fd/tests/fixsi/bulk-threshold.test.js:10:10)\n      at Test.runInAsyncScope (node:async_hooks:211:14)\n      at Test.run (node:internal/test_runner/test:934:25)\n      at Test.start (node:internal/test_runner/test:833:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 250,\n    operator: 'strictEqual'\n  }\n",
+    "failures": [
+     {
+      "nodeid": "tests/fixsi/bulk-threshold.test.js::bulk discount applies at exactly ten units",
+      "kind": "failure",
+      "message": "AssertionError: Expected values to be strictly equal:\n\n0 !== 250\n",
+      "details": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 250\n\n    at TestContext.<anonymous> (file:///C:/Users/HRIDYA%7E1/AppData/Local/Temp/fixsi-record-FaIZpj/ws/1022-f090fd/tests/fixsi/bulk-threshold.test.js:10:10)\n    at Test.runInAsyncScope (node:async_hooks:211:14)\n    at Test.run (node:internal/test_runner/test:934:25)\n    at Test.start (node:internal/test_runner/test:833:17)\n    at startSubtestAfterBootstrap (node:internal/test_runner/harness:297:17)"
+     }
+    ]
+   }
+  },
+  {
+   "t": 10.361,
+   "type": "model_call",
+   "payload": {
+    "stage": "reproduce",
+    "task": "classify_failure",
+    "tier": "nano",
+    "model": "nvidia/nemotron-3-nano-30b-a3b",
+    "prompt_tokens": 628,
+    "completion_tokens": 28,
+    "latency_ms": 713,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 10.363,
+   "type": "evidence_added",
+   "payload": {
+    "hypothesis_id": "h1",
+    "kind": "for",
+    "text": "tests/fixsi/bulk-threshold.test.js::bulk discount applies at exactly ten units fails as predicted: AssertionError: Expected values to be strictly equal:"
+   }
+  },
+  {
+   "t": 10.365,
+   "type": "hypothesis_confirmed",
+   "payload": {
+    "id": "h1",
+    "reason": "tests/fixsi/bulk-threshold.test.js::bulk discount applies at exactly ten units fails as predicted: AssertionError: Expected values to be strictly equal:",
+    "test_path": "tests/fixsi/bulk-threshold.test.js"
+   }
+  },
+  {
+   "t": 10.366,
+   "type": "log",
+   "payload": {
+    "message": "h1 confirmed — the reproduction test fails exactly as predicted.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 10.368,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "fix"
+   }
+  },
+  {
+   "t": 10.371,
+   "type": "log",
+   "payload": {
+    "message": "Fix attempt 1/3.",
+    "level": "info"
+   }
+  },
+  {
+   "t": 13.11,
+   "type": "model_call",
+   "payload": {
+    "stage": "fix",
+    "task": "write_fix",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 2226,
+    "completion_tokens": 52,
+    "latency_ms": 2211,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 13.112,
+   "type": "patch_proposed",
+   "payload": {
+    "attempt": 1,
+    "explanation": "Make the threshold inclusive, matching '10 or more'.",
+    "edits": [
+     {
+      "path": "shop/promotions.js",
+      "search": "if (line.quantity > BULK_THRESHOLD) {",
+      "replace": "if (line.quantity >= BULK_THRESHOLD) {"
+     }
+    ]
+   }
+  },
+  {
+   "t": 13.327,
+   "type": "patch_applied",
+   "payload": {
+    "attempt": 1,
+    "files": [
+     "shop/promotions.js"
+    ],
+    "diff": "diff --git a/shop/promotions.js b/shop/promotions.js\nindex f1a425e..43386b6 100644\n--- a/shop/promotions.js\n+++ b/shop/promotions.js\n@@ -5,7 +5,7 @@ export const BULK_RATE_PERCENT = 10;\n \n /** Bulk-buy promotion: 10% off a line when its quantity is 10 or more. Returns cents. */\n export function bulkDiscount(line) {\n-  if (line.quantity > BULK_THRESHOLD) {\n+  if (line.quantity >= BULK_THRESHOLD) {\n     return (line.lineTotal * BULK_RATE_PERCENT) / 100;\n   }\n   return 0;\n"
+   }
+  },
+  {
+   "t": 13.328,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "verify"
+   }
+  },
+  {
+   "t": 13.33,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "verify_repro",
+    "selector": "tests/fixsi/bulk-threshold.test.js",
+    "hypothesis_id": null,
+    "attempt": 1
+   }
+  },
+  {
+   "t": 13.833,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "verify_repro",
+    "selector": "tests/fixsi/bulk-threshold.test.js",
+    "hypothesis_id": null,
+    "attempt": 1,
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 499,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ bulk discount applies at exactly ten units (2.2693ms)\n✔ bulk discount not applied at nine units (0.3867ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 217.4927\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 13.835,
+   "type": "test_run_started",
+   "payload": {
+    "purpose": "verify_suite",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": 1
+   }
+  },
+  {
+   "t": 14.76,
+   "type": "test_run_finished",
+   "payload": {
+    "purpose": "verify_suite",
+    "selector": null,
+    "hypothesis_id": null,
+    "attempt": 1,
+    "passed": 32,
+    "failed": 0,
+    "errors": 0,
+    "duration_ms": 921,
+    "exit_code": 0,
+    "timed_out": false,
+    "backend": "local",
+    "output_tail": "✔ add merges same sku (4.1813ms)\n✔ add rejects non-positive quantity (1.5036ms)\n✔ set quantity zero removes line (1.1469ms)\n✔ quantity cap (0.4718ms)\n✔ items() is a snapshot (0.6551ms)\n✔ percent code (3.2664ms)\n✔ fixed code needs minimum (113.8734ms)\n✔ expired code (0.4218ms)\n✔ bulk discount applies at exactly ten units (1.7707ms)\n✔ bulk discount not applied at nine units (0.5332ms)\n✔ reserve reduces available (2.3996ms)\n✔ cannot reserve more than available (0.8195ms)\n✔ commit removes stock (0.2556ms)\n✔ release more than reserved is an error (0.2661ms)\n✔ checkout places order and reserves stock (42.1375ms)\n✔ checkout with empty cart is rejected (0.712ms)\n✔ checkout with explicit address (1.8439ms)\n✔ checkout with discount code (1.1661ms)\n✔ cancel releases stock (0.5905ms)\n✔ fulfil commits stock (0.4893ms)\n✔ insufficient stock rolls back (0.5886ms)\n✔ simple US quote (2.7733ms)\n✔ free shipping over threshold (0.4694ms)\n✔ heavy parcel surcharge (0.2205ms)\n✔ bulk discount on large order (0.2855ms)\n✔ no bulk discount on small order (0.4183ms)\n✔ unsupported country (0.8805ms)\n✔ get known product (1.2709ms)\n✔ unknown product throws (0.5547ms)\n✔ register and find (1.0897ms)\n✔ duplicate email rejected (0.4772ms)\n✔ first saved address becomes default (0.2661ms)\nℹ tests 32\nℹ suites 0\nℹ pass 32\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 752.7846\n",
+    "failures": []
+   }
+  },
+  {
+   "t": 14.762,
+   "type": "log",
+   "payload": {
+    "message": "Verified: reproduction test passes and all 32 tests are green.",
+    "level": "success"
+   }
+  },
+  {
+   "t": 14.763,
+   "type": "stage_changed",
+   "payload": {
+    "stage": "report"
+   }
+  },
+  {
+   "t": 19.532,
+   "type": "model_call",
+   "payload": {
+    "stage": "report",
+    "task": "postmortem",
+    "tier": "ultra",
+    "model": "nvidia/nemotron-3-ultra-550b-a55b",
+    "prompt_tokens": 1036,
+    "completion_tokens": 197,
+    "latency_ms": 4507,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 21.753,
+   "type": "model_call",
+   "payload": {
+    "stage": "report",
+    "task": "pr_title",
+    "tier": "super",
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "prompt_tokens": 155,
+    "completion_tokens": 14,
+    "latency_ms": 2208,
+    "success": true,
+    "fallback": false,
+    "error": null
+   }
+  },
+  {
+   "t": 21.755,
+   "type": "report_ready",
+   "payload": {
+    "title": "Bulk promotion threshold off by one (> instead of >=)",
+    "markdown": "# Postmortem: Bulk promotion threshold off by one (> instead of >=)\n\n## Summary\nOrders of exactly 10 units did not receive the advertised 10% bulk discount.\n\n## Impact\nCustomers buying exactly the threshold quantity were overcharged by 10% of that line.\n\n## Root cause\npromotions.bulkDiscount compared `quantity > BULK_THRESHOLD` while the promotion and its doc comment say '10 or more'.\n\n## Evidence\n- Pricing logs: PEN-01 x10 bulk_savings=0.00 vs x12 bulk_savings=3.00\n- Reproduction test failed: bulkSavings 0 !== 250\n\n## Fix\nUse an inclusive comparison (>=).\n\n## How it was verified\nBoundary tests at 9 and 10 units pass along with the existing suite.\n\n- Reproduction test `tests/fixsi/bulk-threshold.test.js` failed before the fix and passes after it.\n- Full suite: 32 passed, 0 failed (baseline: 30 passed). Pre-existing tests were not modified.\n- Fix attempts: 1.\n\n## Prevention\n- Test promotions at threshold-1, threshold and threshold+1\n- Express thresholds as 'minQuantity' to make inclusivity explicit\n\n---\n_Generated by Fixsi — it doesn't guess, it proves. Models: nvidia/nemotron-3-nano-30b-a3b, nvidia/nemotron-3-super-120b-a12b, nvidia/nemotron-3-ultra-550b-a55b._",
+    "postmortem": {
+     "title": "Bulk promotion threshold off by one (> instead of >=)",
+     "summary": "Orders of exactly 10 units did not receive the advertised 10% bulk discount.",
+     "impact": "Customers buying exactly the threshold quantity were overcharged by 10% of that line.",
+     "root_cause": "promotions.bulkDiscount compared `quantity > BULK_THRESHOLD` while the promotion and its doc comment say '10 or more'.",
+     "evidence": [
+      "Pricing logs: PEN-01 x10 bulk_savings=0.00 vs x12 bulk_savings=3.00",
+      "Reproduction test failed: bulkSavings 0 !== 250"
+     ],
+     "fix": "Use an inclusive comparison (>=).",
+     "verification": "Boundary tests at 9 and 10 units pass along with the existing suite.",
+     "prevention": [
+      "Test promotions at threshold-1, threshold and threshold+1",
+      "Express thresholds as 'minQuantity' to make inclusivity explicit"
+     ]
+    },
+    "diff": "diff --git a/shop/promotions.js b/shop/promotions.js\nindex f1a425e..43386b6 100644\n--- a/shop/promotions.js\n+++ b/shop/promotions.js\n@@ -5,7 +5,7 @@ export const BULK_RATE_PERCENT = 10;\n \n /** Bulk-buy promotion: 10% off a line when its quantity is 10 or more. Returns cents. */\n export function bulkDiscount(line) {\n-  if (line.quantity > BULK_THRESHOLD) {\n+  if (line.quantity >= BULK_THRESHOLD) {\n     return (line.lineTotal * BULK_RATE_PERCENT) / 100;\n   }\n   return 0;\ndiff --git a/tests/fixsi/bulk-threshold.test.js b/tests/fixsi/bulk-threshold.test.js\nnew file mode 100644\nindex 0000000..1ac79a1\n--- /dev/null\n+++ b/tests/fixsi/bulk-threshold.test.js\n@@ -0,0 +1,17 @@\n+import assert from \"node:assert/strict\";\n+import { test } from \"node:test\";\n+\n+import { quote } from \"../../shop/pricing.js\";\n+import { makeShop } from \"../helpers.js\";\n+\n+test(\"bulk discount applies at exactly ten units\", () => {\n+  const { cart } = makeShop();\n+  cart.add(\"PEN-01\", 10); // 25.00 -> 10% off\n+  assert.equal(quote(cart.items(), \"US\").bulkSavings, 250);\n+});\n+\n+test(\"bulk discount not applied at nine units\", () => {\n+  const { cart } = makeShop();\n+  cart.add(\"PEN-01\", 9);\n+  assert.equal(quote(cart.items(), \"US\").bulkSavings, 0);\n+});\n",
+    "test_path": "tests/fixsi/bulk-threshold.test.js",
+    "test_content": "import assert from \"node:assert/strict\";\nimport { test } from \"node:test\";\n\nimport { quote } from \"../../shop/pricing.js\";\nimport { makeShop } from \"../helpers.js\";\n\ntest(\"bulk discount applies at exactly ten units\", () => {\n  const { cart } = makeShop();\n  cart.add(\"PEN-01\", 10); // 25.00 -> 10% off\n  assert.equal(quote(cart.items(), \"US\").bulkSavings, 250);\n});\n\ntest(\"bulk discount not applied at nine units\", () => {\n  const { cart } = makeShop();\n  cart.add(\"PEN-01\", 9);\n  assert.equal(quote(cart.items(), \"US\").bulkSavings, 0);\n});\n",
+    "pr_title": "fix: apply bulk discount at exactly 10 units",
+    "models": [
+     "nvidia/nemotron-3-nano-30b-a3b",
+     "nvidia/nemotron-3-super-120b-a12b",
+     "nvidia/nemotron-3-ultra-550b-a55b"
+    ]
+   }
+  },
+  {
+   "t": 21.756,
+   "type": "run_completed",
+   "payload": {
+    "status": "succeeded",
+    "duration_ms": 21758,
+    "tokens": 11695,
+    "pr_url": null
+   }
+  }
+ ]
+}
