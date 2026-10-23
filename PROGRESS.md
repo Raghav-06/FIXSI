@@ -32,12 +32,20 @@ docker compose up --build                         # nginx UI on :3000, API on :8
 |---|---|---|
 | 1 | Rewrite this file for the JS stack | DONE |
 | 2 | Hardening: placeholder webhook secret, LICENSE name, phone Report header | DONE |
-| 3 | Verify Nemotron model IDs (needs key) | TODO |
-| 4 | Live end-to-end runs of all 4 bugs + one pasted error (needs key) | TODO |
-| 5 | Re-record replays with live models (needs key) | TODO |
-| 6 | Deployment readiness: SPA rewrites, Render blueprint, Docker check, README deploy steps | TODO |
+| 3 | Verify Nemotron model IDs (needs key) | BLOCKED: no `NEBIUS_API_KEY` |
+| 4 | Live end-to-end runs of all 4 bugs + one pasted error (needs key) | BLOCKED: no `NEBIUS_API_KEY` |
+| 5 | Re-record replays with live models (needs key) | BLOCKED: no `NEBIUS_API_KEY` |
+| 6 | Deployment readiness: SPA rewrites, Render blueprint, Docker check, README deploy steps | DONE, except the Docker check (Docker is not installed on the dev machine; `docker compose up` still unverified) |
 | 7 | README screenshots and GIF | TODO |
 | 8 | README finishing touches | TODO |
 | 9 | Final check | TODO |
 
 Deadline: Devpost submission closes **Oct 30, 2026, 10:30 PM IST**.
+
+## Blocked: needs API key
+
+There is no `.env` and no `NEBIUS_API_KEY`, so these could not run. With a key in `.env`:
+
+1. **Task 3:** `cd backend && npm run list:models`. If a configured Nemotron ID is missing, update `backend/src/config.js` and `.env.example`.
+2. **Task 4:** start `npm run dev` with `REPLAY_MODE=false` and run all 4 demo incidents plus one pasted error. For each, record status, model calls per tier, tokens and duration here.
+3. **Task 5:** `cd backend && npm run record:replays`. Commit only successful recordings (bug #4 must show a rejected hypothesis), then remove the "recordings are scripted" note from the README.

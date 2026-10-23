@@ -138,10 +138,35 @@ Use a **fine-grained token** with *Contents* and *Pull requests* read/write on t
 
 ## Deploying
 
-| Piece | Where | Env vars |
-|---|---|---|
-| Backend container (`backend/Dockerfile`, build context = `backend/`) | Render / Railway / Fly.io / **Nebius Serverless Endpoints** | everything in `.env.example`; set `CORS_ALLOWED_ORIGINS` to the frontend URL; mount a volume at `/app/data` to keep history |
-| Frontend (`frontend/`, a static Vite build) | Vercel / Netlify / any static host (root directory `frontend`, build `npm run build`, output `dist`, SPA fallback to `index.html`), or `frontend/Dockerfile` (nginx) | `VITE_API_BASE_URL` = backend URL (inlined at **build** time); leave empty when nginx proxies `/api` |
+The tested path is the **backend on Render** (Docker, free tier) and the **frontend on Vercel**. Any Docker host works for the backend (Railway, Fly.io, Nebius Serverless Endpoints; build context `backend/`), and any static host works for the frontend (`frontend/vercel.json` and `frontend/public/_redirects` handle deep links like `/runs/<id>` on Vercel and Netlify).
+
+**1. Backend on Render (Docker, free tier)**
+
+1. Push this repo to GitHub, then sign in at [dashboard.render.com](https://dashboard.render.com).
+2. Click **New** → **Blueprint**, connect the repo and select it. Render reads `render.yaml` from the repo root.
+3. Render asks for the values marked `sync: false`:
+   - `NEBIUS_API_KEY`: your Token Factory key (leave empty to run in Replay mode).
+   - `CORS_ALLOWED_ORIGINS`: put a placeholder like `https://example.com` for now; you set the real Vercel URL in step 3.
+   - `GITHUB_TOKEN` / `GITHUB_REPO_OWNER`: optional, only for opening real PRs.
+
+   `WEBHOOK_SECRET` is generated automatically.
+4. Click **Apply**. The first Docker build takes a few minutes. When it's live, copy the service URL (e.g. `https://fixsi-backend.onrender.com`) and open `<url>/api/health`; it should return `"status":"ok"`.
+
+   *Without the blueprint:* **New** → **Web Service** → pick the repo → Language **Docker**, Root Directory `backend`, Instance Type **Free**, Health Check Path `/api/health`, then add the same environment variables.
+
+**2. Frontend on Vercel**
+
+1. At [vercel.com/new](https://vercel.com/new), import the same repo.
+2. Set **Root Directory** to `frontend`. Vercel detects Vite. Check that **Build Command** is `npm run build` and **Output Directory** is `dist`.
+3. Under **Environment Variables**, add `VITE_API_BASE_URL` = the Render URL from step 1 (no trailing slash). It is inlined at build time, so redeploy whenever you change it.
+4. Click **Deploy** and copy the production URL (e.g. `https://fixsi.vercel.app`).
+
+**3. Connect them**
+
+1. In Render → your service → **Environment**, set `CORS_ALLOWED_ORIGINS` to the Vercel URL (comma-separate several, no trailing slash) and save. Render redeploys.
+2. Open the Vercel URL, check that the header shows the right mode (**Live** or **Replay**), and **run one replay to warm the backend before judging**. Free Render instances sleep after ~15 minutes idle, and the first request after that takes 30–60 s.
+
+**Docker Compose (single host):** `docker compose up --build` serves the UI with nginx on :3000 and proxies `/api` to the backend, so `VITE_API_BASE_URL` stays empty. Mount the `fixsi-data` volume to keep history.
 
 Notes:
 - Behind a proxy, the per-IP rate limit uses the first `X-Forwarded-For` hop. Keep `RATE_LIMIT_RUNS_PER_HOUR` and `MAX_CONCURRENT_RUNS` low on a public demo; replays don't count against them.
