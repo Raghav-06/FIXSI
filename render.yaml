@@ -1,0 +1,31 @@
+# Render Blueprint for the Fixsi backend (Docker web service, free tier).
+# Render: New > Blueprint > pick this repo. Secrets marked `sync: false` are asked for on first deploy.
+# Model IDs use the defaults in backend/src/config.js; add NEMOTRON_*_MODEL here only to override them.
+# The free tier has no persistent disk: run history resets on redeploy (the demo-shop repo is rebuilt at startup).
+services:
+  - type: web
+    name: fixsi-backend
+    runtime: docker
+    plan: free
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      - key: NEBIUS_API_KEY
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS   # your Vercel URL, e.g. https://fixsi.vercel.app
+        sync: false
+      - key: WEBHOOK_SECRET         # 16+ characters; Render generates a random one
+        generateValue: true
+      - key: GITHUB_TOKEN           # optional: open real PRs
+        sync: false
+      - key: GITHUB_REPO_OWNER
+        sync: false
+      - key: RATE_LIMIT_RUNS_PER_HOUR
+        value: "5"
+      - key: MAX_CONCURRENT_RUNS
+        value: "2"
