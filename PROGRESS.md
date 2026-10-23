@@ -24,7 +24,7 @@ docker compose up --build                         # nginx UI on :3000, API on :8
 - [x] Frontend: home, run view (case file, hypothesis board, lab, report), history, how-it-works; no horizontal scroll on phone, tablet or desktop
 - [x] demo-shop with 4 planted bugs, incidents and a 13-commit git history
 - [x] Replays for all 4 demo bugs (recorded with `--scripted` model replies)
-- [x] Backend tests 68/68, demo-shop tests 30/30, frontend lint + build clean
+- [x] Backend tests 69/69, demo-shop tests 30/30, frontend lint + build clean (final check, 2026-10-23)
 
 ## Remaining (finish-and-ship list)
 
@@ -38,7 +38,7 @@ docker compose up --build                         # nginx UI on :3000, API on :8
 | 6 | Deployment readiness: SPA rewrites, Render blueprint, Docker check, README deploy steps | DONE, except the Docker check (Docker is not installed on the dev machine; `docker compose up` still unverified) |
 | 7 | README screenshots and GIF | PARTIAL: `frontend/scripts/capture-screenshots.mjs` (`npm run capture`) works and makes all 4 files (clip is `.webm`, 4.1 MB; no ffmpeg for GIF). Images not committed because they would show "Replay (scripted)"; rerun after Task 5 |
 | 8 | README finishing touches | DONE |
-| 9 | Final check | TODO |
+| 9 | Final check | DONE: all suites and both builds pass |
 
 Deadline: Devpost submission closes **Oct 30, 2026, 10:30 PM IST**.
 
@@ -49,3 +49,13 @@ There is no `.env` and no `NEBIUS_API_KEY`, so these could not run. With a key i
 1. **Task 3:** `cd backend && npm run list:models`. If a configured Nemotron ID is missing, update `backend/src/config.js` and `.env.example`.
 2. **Task 4:** start `npm run dev` with `REPLAY_MODE=false` and run all 4 demo incidents plus one pasted error. For each, record status, model calls per tier, tokens and duration here.
 3. **Task 5:** `cd backend && npm run record:replays`. Commit only successful recordings (bug #4 must show a rejected hypothesis), then remove the "recordings are scripted" note from the README.
+
+## Only the author can do
+
+1. **Keys:** `cp .env.example .env`, set `NEBIUS_API_KEY`, then do Tasks 3–5 above (list models → live runs → `npm run record:replays`) and remove the "recordings are scripted" note from the README.
+2. **Screenshots:** with the live replays committed, run `cd frontend && npm run capture`, commit `docs/` and swap the image TODOs at the top of the README.
+3. **Docker (optional):** `docker compose up --build` on a machine with Docker; check `/runs/<id>` and live SSE at http://localhost:3000.
+4. **Deploy:** follow README → Deploying (Render blueprint, then Vercel, then set `CORS_ALLOWED_ORIGINS`). Warm the backend with one replay.
+5. **README TODOs:** live demo URL, video URL, the four Feedback subsections, and "What was built during the hackathon".
+6. **Video:** 3 minutes or less, showing bug #4's rejected → confirmed hypotheses.
+7. **Submit on Devpost** before Oct 30, 2026, 10:30 PM IST.
