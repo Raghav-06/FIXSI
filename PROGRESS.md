@@ -1,48 +1,43 @@
-# Fixsi — progress (audited 2026-10-18)
+# Fixsi: progress
 
-> **2026-10-23: converted to an all-JavaScript stack.** Backend is now Node.js + Express (`backend/src`),
-> frontend is Vite + React JSX (`frontend/src`), and demo-shop is a JS app tested with `node:test`
-> (`backend/demo-shop`). Replays were re-recorded (`--scripted`) through the new pipeline.
-> Verified: backend `npm test` 68/68, frontend lint + build clean, demo-shop 30/30, and a replay of
-> bug #4 driven in a headless browser with no console errors. Commands below that mention
-> `pytest`/`python` now map to the `npm` scripts in the README. `docker compose up` has not been verified.
+Stack: Node.js + Express backend (`backend/src`), Vite + React + Tailwind frontend (`frontend/src`),
+and the demo-shop victim app with 4 planted bugs (`backend/demo-shop`).
 
-Audit of `D:\FIXSI` against `FIXSI_PROMPT.md` (§13 milestones, §14 acceptance criteria).
-Checks were run on a copy of the project: backend tests, frontend typecheck/lint/build,
-a replay run of bug #4 through the API, and phone (375px) + desktop screenshots.
+## Commands
 
-## Milestones
+```bash
+cd backend && npm install && npm test             # backend suite (node:test, no API key needed)
+cd backend/demo-shop && npm test                  # victim app's own suite (passes on the buggy code)
+cd frontend && npm install && npm run lint && npm run build
 
-| # | Milestone | Status | Notes |
-|---|---|---|---|
-| 1 | Scaffold, LICENSE, .gitignore, config, health | DONE | LICENSE still says `YOUR NAME` |
-| 2 | demo-shop + 4 planted bugs + incidents + history | DONE | 13-commit history incl. "refactor: round prices consistently" |
-| 3 | Local sandbox, patcher, tools | DONE | tests pass |
-| 4 | Model router + telemetry + fake client | DONE | tests pass |
-| 5 | Orchestrator, SSE, SQLite, scripted E2E test | DONE | bug #4 reject → confirm → fix → verify → report works |
-| 6 | Frontend (home, run view, history, how-it-works) | DONE | build/lint/typecheck clean; no horizontal scroll at 375px; 3 columns on desktop; bottom tabs on phone |
-| 7 | GitHub PR + .patch download | DONE (code) | not tested against real GitHub yet |
-| 8 | Webhook + "Break it" | DONE (code) | needs `WEBHOOK_SECRET` set |
-| 9 | Rate limit, replay mode, record script | PARTIAL | replays are **scripted** (shown as "Replay (scripted)"); re-record live once keys are set |
-| 10 | Nebius Serverless Jobs sandbox + fallback | DONE (code) | not tested against real Nebius Jobs |
-| 11 | Dockerfiles + docker-compose | PARTIAL | files exist; `docker compose up` not verified |
-| 12 | README + final pass | PARTIAL | all sections present; TODO placeholders remain (see below) |
+cd backend && npm run dev                         # API on http://localhost:8000
+cd frontend && npm run dev                        # UI on http://localhost:5173 (proxies /api)
 
-**Test results:** backend `pytest` 66 passed · frontend `typecheck`, `lint`, `build` all clean.
+cd backend && npm run list:models                 # check Nemotron IDs against the Token Factory catalog (needs key)
+cd backend && npm run record:replays              # re-record the 4 demo replays with live models (needs key)
+docker compose up --build                         # nginx UI on :3000, API on :8000
+```
 
-## What's left (in order)
+## Done
 
-1. **Commit and push.** The repo history shows only the original clone of `github.com/Raghav-06/FIXSI`; none of the work appears to be committed yet. Commit and push now so nothing is lost.
-2. **Fill `.env`:** `NEBIUS_API_KEY`; confirm the three Nemotron model IDs against the Token Factory catalog (`python backend/scripts/list_models.py`); set `WEBHOOK_SECRET`.
-3. **Live test:** run all 4 demo bugs live; bug #4 must show a rejected hypothesis before confirming.
-4. **Re-record replays live:** `cd backend && python scripts/record_replays.py` so judges see real Nemotron runs, not "scripted".
-5. **Verify `docker compose up`.**
-6. **(Optional) GitHub PRs:** run `scripts/publish_demo_shop.sh`, fill the `GITHUB_*` values, test one PR.
-7. **Deploy:** backend container (Render/Railway/Fly/Nebius) + frontend on Vercel; set `CORS_ALLOWED_ORIGINS` and `NEXT_PUBLIC_API_BASE_URL`.
-8. **Fill TODOs:** LICENSE name; README live-demo link, video link, screenshots/GIF, feedback section, "What was built during the hackathon".
-9. **Record the demo video (≤3 min), submit on Devpost before Oct 30, 10:30 PM IST.**
+- [x] Backend: 6-stage orchestrator, model router (Nano / Super / Ultra), sandbox (local + Nebius Jobs), patcher, SSE, SQLite history, GitHub PRs, webhooks, rate limiting, replay mode
+- [x] Frontend: home, run view (case file, hypothesis board, lab, report), history, how-it-works; no horizontal scroll on phone, tablet or desktop
+- [x] demo-shop with 4 planted bugs, incidents and a 13-commit git history
+- [x] Replays for all 4 demo bugs (recorded with `--scripted` model replies)
+- [x] Backend tests 68/68, demo-shop tests 30/30, frontend lint + build clean
 
-## Resume instructions for Claude Code
+## Remaining (finish-and-ship list)
 
-Read `PROGRESS.md` and `FIXSI_PROMPT.md`, then continue from the first unfinished item in "What's left".
-Don't redo finished milestones. Update this file after each item.
+| # | Task | Status |
+|---|---|---|
+| 1 | Rewrite this file for the JS stack | DONE |
+| 2 | Hardening: placeholder webhook secret, LICENSE name, phone Report header | TODO |
+| 3 | Verify Nemotron model IDs (needs key) | TODO |
+| 4 | Live end-to-end runs of all 4 bugs + one pasted error (needs key) | TODO |
+| 5 | Re-record replays with live models (needs key) | TODO |
+| 6 | Deployment readiness: SPA rewrites, Render blueprint, Docker check, README deploy steps | TODO |
+| 7 | README screenshots and GIF | TODO |
+| 8 | README finishing touches | TODO |
+| 9 | Final check | TODO |
+
+Deadline: Devpost submission closes **Oct 30, 2026, 10:30 PM IST**.
